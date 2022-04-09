@@ -42,7 +42,7 @@
         "disable-scroll": "^0.5.1",
         "hammerjs": "^2.0.8",
         "jquery": "^3.5.1",
-        "moment": "^2.27.0",
+        "moment": "^2.29.2",
         "ng-gallery": "^5.0.0",
         "jwt-decode": "^2.2.0",
         "ng2-file-upload": "^1.4.0",
