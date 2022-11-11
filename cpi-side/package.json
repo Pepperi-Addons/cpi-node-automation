@@ -15,7 +15,7 @@
   "dependencies": {
     "@pepperi-addons/cpi-node": "^0.4.17",
     "chai": "4.3.4",
-    "mocha": "7.2.0",
+    "mocha": "10.1.0",
     "mochawesome": "7.0.1",
     "rollup-plugin-typescript2": "^0.30.0",
     "ts-mocha": "8.0.0"
