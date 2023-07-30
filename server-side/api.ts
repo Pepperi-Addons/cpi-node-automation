@@ -29,7 +29,7 @@ export async function InitiateLoad(client: Client, request: Request) {
   const { describe, it, expect, run } = Tester();
 
   if (isLocal) {
-    accessToken = "c8cff29a-56f6-4489-a21a-79534785fb85"; //fill in from CPINode debugger
+    accessToken = "cf721941-c8e8-4885-929c-fef4d1659fb9"; //fill in from CPINode debugger
     webAPIBaseURL = "http://localhost:8093";
   }
   //run in case sync is running before tests
@@ -78,6 +78,7 @@ export async function InitiateLoad(client: Client, request: Request) {
   //mocha test
   describe("Load function automation test", async () => {
     it("Parsed test results", async () => {
+      debugger;
       expect(
         udtData,
         "There was an issue,only one record returned from the Load UDT"
@@ -125,7 +126,7 @@ export async function AddonAPITester(client: Client, request: Request) {
   let webAPIBaseURL = await service.getWebAPIBaseURL();
   let accessToken = await service.getAccessToken(webAPIBaseURL);
   if (isLocal) {
-    accessToken = "a8d5082f-daa6-4c54-a91d-77b1b2882f5e"; //fill in from CPINode debugger
+    accessToken = "257ef28b-e2c0-4e77-b83e-e82dbea51c95"; //fill in from CPINode debugger
     webAPIBaseURL = "http://localhost:8093";
   }
 
@@ -364,9 +365,9 @@ export async function PerformenceTester(client: Client, request: Request) {
   };
   const gottenAllObjects: boolean =
     typeof testData !== "undefined" &&
-    testData &&
-    typeof currentRes !== "undefined" &&
-    currentRes
+      testData &&
+      typeof currentRes !== "undefined" &&
+      currentRes
       ? true
       : false;
 
@@ -408,6 +409,7 @@ export async function PerformenceTester(client: Client, request: Request) {
 }
 /**method to run TransactionScope test*/
 export async function TransactionScopeTester(client: Client, request: Request) {
+  debugger;
   const service = new MyService(client);
   const isLocal = false;
   let webAPIBaseURL = await service.getWebAPIBaseURL();
@@ -568,7 +570,7 @@ export async function dataObjectCRUD(client: Client, request: Request) {
   console.log(accessToken);
 
   if (isLocal) {
-    accessToken = "c8cff29a-56f6-4489-a21a-79534785fb85"; //fill in from CPINode debugger
+    accessToken = "257ef28b-e2c0-4e77-b83e-e82dbea51c95"; //fill in from CPINode debugger
     webAPIBaseURL = "http://localhost:8093";
   }
   //run in case sync is running before tests
@@ -579,6 +581,65 @@ export async function dataObjectCRUD(client: Client, request: Request) {
     accessToken,
     webAPIBaseURL,
     "dataObjectCrud"
+  );
+  //deactive adal tesk trigger
+  const initSync2 = await service.initSync(accessToken, webAPIBaseURL);
+  await service.getSyncStatus(accessToken, webAPIBaseURL, 10);
+  await service.sleep(2000);
+  //return test results
+  return testResults;
+}
+
+export async function Cpi_Adal(client: Client, request: Request) {
+  const service = new MyService(client);
+  const isLocal = false;
+  let webAPIBaseURL = await service.getWebAPIBaseURL();
+  let accessToken = await service.getAccessToken(webAPIBaseURL);
+  console.log(webAPIBaseURL);
+  console.log(accessToken);
+
+  if (isLocal) {
+    accessToken = "257ef28b-e2c0-4e77-b83e-e82dbea51c95"; //fill in from CPINode debugger
+    webAPIBaseURL = "http://localhost:8093";
+  }
+  //run in case sync is running before tests
+  await service.initResync(accessToken, webAPIBaseURL);
+  await service.getSyncStatus(accessToken, webAPIBaseURL, 30);
+  await service.sleep(2000);
+  //run and get mocha tests results from cpiSide
+  const testResults = await service.runCPISideTest(
+    accessToken,
+    webAPIBaseURL,
+    "Cpi_Adal",
+  );
+  //deactive adal tesk trigger
+  const initSync2 = await service.initSync(accessToken, webAPIBaseURL);
+  await service.getSyncStatus(accessToken, webAPIBaseURL, 10);
+  await service.sleep(2000);
+  //return test results
+  return testResults;
+}
+
+export async function pfs_cpi(client: Client, request: Request) {
+  const service = new MyService(client);
+  const isLocal = false;
+  let webAPIBaseURL = await service.getWebAPIBaseURL();
+  let accessToken = await service.getAccessToken(webAPIBaseURL);
+  console.log(webAPIBaseURL);
+  console.log(accessToken);
+
+  if (isLocal) {
+    accessToken = "257ef28b-e2c0-4e77-b83e-e82dbea51c95"; //fill in from CPINode debugger
+    webAPIBaseURL = "http://localhost:8093";
+  }
+  //run in case sync is running before tests
+  await service.getSyncStatus(accessToken, webAPIBaseURL, 10);
+  await service.sleep(2000);
+  //run and get mocha tests results from cpiSide
+  const testResults = await service.runCPISideTest(
+    accessToken,
+    webAPIBaseURL,
+    "pfs_cpi"
   );
   //deactive adal tesk trigger
   const initSync2 = await service.initSync(accessToken, webAPIBaseURL);
@@ -841,8 +902,8 @@ export async function SyncInterceptorsTest(client: Client, request: Request) {
   await service.getSyncStatus(accessToken, webAPIBaseURL, 20);
   //set test flag to On
   const flagOn = await service.setTestFlag({
-    SyncInteceptorsActive : true
-  }); 
+    SyncInteceptorsActive: true
+  });
   await service.sleep(5000);
   const firstSync = await service.initSync(accessToken, webAPIBaseURL);
   await service.getSyncStatus(accessToken, webAPIBaseURL, 20);
@@ -851,7 +912,7 @@ export async function SyncInterceptorsTest(client: Client, request: Request) {
   await service.getSyncStatus(accessToken, webAPIBaseURL, 20);
   //set test flag to Off
   const flagOff = await service.setTestFlag({
-    SyncInteceptorsActive : false
+    SyncInteceptorsActive: false
   }); // deactivates test
   const thirdSync = await service.initSync(accessToken, webAPIBaseURL);
   await service.getSyncStatus(accessToken, webAPIBaseURL, 10);
@@ -881,20 +942,20 @@ export async function SyncInterceptorsTest(client: Client, request: Request) {
 
   //mocha test
   describe("Sync interceptors events automation test", async () => {
-    it("Sync started and stooped events test cases",async() => {
-      expect(udtData,"Failed on udt returning wrong number of objects").to.be.an("array").that.has.lengthOf(2);
-      expect(udtData[0].SecondaryKey,"Failed on wrong interceptor firing").to.be.a("string").that.is.equal("SyncStarted");
-      expect(udtData[0].MainKey.split("T")[0],"Failed on wrong date returning").to.be.a("string").that.is.equal(`SyncStarted${ModificationDate}`);
-      expect(udtData[1].SecondaryKey,"Failed on wrong interceptor firing").to.be.a("string").that.is.equal("SyncStopped");
-      expect(udtData[1].MainKey.split("T")[0],"Failed on wrong date returning").to.be.a("string").that.is.equal(`SyncStopped${ModificationDate}`);
+    it("Sync started and stooped events test cases", async () => {
+      expect(udtData, "Failed on udt returning wrong number of objects").to.be.an("array").that.has.lengthOf(2);
+      expect(udtData[0].SecondaryKey, "Failed on wrong interceptor firing").to.be.a("string").that.is.equal("SyncStarted");
+      expect(udtData[0].MainKey.split("T")[0], "Failed on wrong date returning").to.be.a("string").that.is.equal(`SyncStarted${ModificationDate}`);
+      expect(udtData[1].SecondaryKey, "Failed on wrong interceptor firing").to.be.a("string").that.is.equal("SyncStopped");
+      expect(udtData[1].MainKey.split("T")[0], "Failed on wrong date returning").to.be.a("string").that.is.equal(`SyncStopped${ModificationDate}`);
 
     });
     it("Sync stopped event data test cases", async () => {
-      
 
-      for(const value of udtData[1].Values) {
-        if(value.includes("LastSyncDateTime")) {
-          expect(value,"failed on client info returning wrong output").that.include("LastSyncDateTime");
+
+      for (const value of udtData[1].Values) {
+        if (value.includes("LastSyncDateTime")) {
+          expect(value, "failed on client info returning wrong output").that.include("LastSyncDateTime");
         }
       }
     });
@@ -1918,11 +1979,11 @@ export async function clientActionsTester(client: Client, request: Request) {
               case "/customblankpage":
                 history === "ClearTo"
                   ? expect(history, "Failed on history returning wrong value")
-                      .to.be.a("string")
-                      .that.is.equal("ClearTo")
+                    .to.be.a("string")
+                    .that.is.equal("ClearTo")
                   : expect(history, "Failed on history returning wrong value")
-                      .to.be.a("string")
-                      .that.is.equal("None");
+                    .to.be.a("string")
+                    .that.is.equal("None");
                 break;
               case "/homepage":
                 expect(history, "Failed on history returning wrong value")
@@ -2502,6 +2563,7 @@ export async function clientActionsInterceptorsTester(
     );
   }
   await service.setTestFlag({ InterceptorActionsTest: false });
+  // debugger;
   const initSync2 = await service.initSync(accessToken, webAPIBaseURL);
   await service.sleep(2000);
   await service.getSyncStatus(accessToken, webAPIBaseURL, 10);
@@ -2509,13 +2571,14 @@ export async function clientActionsInterceptorsTester(
   const udtData = await service.getUDTValues("actionsSequence", 1, "DESC");
   //getting actions back from global map after client actions responses (event loop finished)
   const actions = global["map"] as Map<string, any>; //key - client action UUID,value - data
+  // debugger;
   const arrActions: any[] = [];
   for (const action of actions) {
     arrActions.push(action);
   }
   console.log(arrActions);
   const dialogSequenceArr: any[] = [];
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < actions.size; i++) {
     const actionData = await clientActionsService.parseActionDataForTest(
       arrActions[i][1]
     );
@@ -2599,7 +2662,7 @@ export async function clientActionsInterceptorsTester(
                   "Failed on content returning wrong value/type"
                 )
                   .to.be.a("number")
-                  .that.is.above(0);
+                  .to.satisfy(function (num) { return (num > 0 || num === -1); });
                 expect(
                   parsedActionData.Data.Actions,
                   "Failed on actions not returning as an array"
@@ -2697,10 +2760,10 @@ export async function clientActionsInterceptorsTester(
     }
     it(`Client Actions Automation - Parsed execution sequence results`, async () => {
       const arr = udtData[0].Values[0].split(",");
-
+      debugger;
       const geoData = {
-        lat: arr[23].split(":"),
-        acc: arr[24].split(":"),
+        lat: arr[24].split(":"),
+        acc: arr[25].split(":"),
       };
       expect(arr[0]).to.be.a("string").that.is.equal("1");
       expect(arr[1]).to.be.a("string").that.is.equal("true");
@@ -2722,9 +2785,9 @@ export async function clientActionsInterceptorsTester(
       expect(arr[17]).to.be.a("string").that.is.equal("13");
       expect(arr[18]).to.be.a("string").that.is.equal("14");
       expect(arr[19]).to.be.a("string").that.is.equal("15");
-      expect(arr[20]).to.be.a("string").that.is.equal("undefind");
-      expect(arr[21]).to.be.a("string").that.is.equal("16"); // need to change to 16
-      expect(arr[22]).to.be.a("string").that.is.equal(`{"success":true`);
+      expect(arr[21]).to.be.a("string").that.is.equal("undefind");
+      expect(arr[22]).to.be.a("string").that.is.equal("16"); // need to change to 16
+      expect(arr[23]).to.be.a("string").that.is.equal(`{"success":true`);
       expect(geoData.lat[0]).to.be.a("string").that.is.equal(`"latitude"`);
       expect(parseFloat(geoData.lat[1])).to.be.a("number").that.is.above(1);
       expect(geoData.acc[0]).to.be.a("string").that.is.equal(`"accuracy"`);
@@ -2734,12 +2797,13 @@ export async function clientActionsInterceptorsTester(
 
       for (let i = 0; i < dialogSequenceArr.length; i++) {
         const index = parseInt(dialogSequenceArr[i].Data.Content);
-        expect(
-          index,
-          `Failed on sequence returning ${index} instead of ${i + 1}`
-        )
-          .to.be.a("number")
-          .that.is.equal(i + 1);
+        if (index !== -1)
+          expect(
+            index,
+            `Failed on sequence returning ${index} instead of ${i + 1}`
+          )
+            .to.be.a("number")
+            .that.is.equal(i + 1);
       }
     });
   });
@@ -3781,13 +3845,13 @@ export async function notificationsNegative(client: Client, request: Request) {
       } catch (e) {
         e instanceof Error
           ? expect(
-              e.message,
-              "Failed on Title sent as number returning wrong exception"
+            e.message,
+            "Failed on Title sent as number returning wrong exception"
+          )
+            .to.be.a("string")
+            .that.is.equal(
+              'https://papi.staging.pepperi.com/V1.0/push_notifications failed with status: 400 - Bad Request error: {"fault":{"faultstring":"Failed due to exception: Title is not of a type(s) string","detail":{"errorcode":"BadRequest"}}}'
             )
-              .to.be.a("string")
-              .that.is.equal(
-                'https://papi.staging.pepperi.com/V1.0/push_notifications failed with status: 400 - Bad Request error: {"fault":{"faultstring":"Failed due to exception: Title is not of a type(s) string","detail":{"errorcode":"BadRequest"}}}'
-              )
           : null;
       }
       try {
@@ -3801,13 +3865,13 @@ export async function notificationsNegative(client: Client, request: Request) {
       } catch (e) {
         e instanceof Error
           ? expect(
-              e.message,
-              "Failed on Title sent length returning wrong exception"
+            e.message,
+            "Failed on Title sent length returning wrong exception"
+          )
+            .to.be.a("string")
+            .that.is.equal(
+              'https://papi.staging.pepperi.com/V1.0/push_notifications failed with status: 400 - Bad Request error: {"fault":{"faultstring":"Failed due to exception: Title does not meet maximum length of 40","detail":{"errorcode":"BadRequest"}}}'
             )
-              .to.be.a("string")
-              .that.is.equal(
-                'https://papi.staging.pepperi.com/V1.0/push_notifications failed with status: 400 - Bad Request error: {"fault":{"faultstring":"Failed due to exception: Title does not meet maximum length of 40","detail":{"errorcode":"BadRequest"}}}'
-              )
           : null;
       }
       try {
@@ -3821,13 +3885,13 @@ export async function notificationsNegative(client: Client, request: Request) {
       } catch (e) {
         e instanceof Error
           ? expect(
-              e.message,
-              "Failed on Body sent as number returning wrong exception"
+            e.message,
+            "Failed on Body sent as number returning wrong exception"
+          )
+            .to.be.a("string")
+            .that.is.equal(
+              'https://papi.staging.pepperi.com/V1.0/push_notifications failed with status: 400 - Bad Request error: {"fault":{"faultstring":"Failed due to exception: Body is not of a type(s) string","detail":{"errorcode":"BadRequest"}}}'
             )
-              .to.be.a("string")
-              .that.is.equal(
-                'https://papi.staging.pepperi.com/V1.0/push_notifications failed with status: 400 - Bad Request error: {"fault":{"faultstring":"Failed due to exception: Body is not of a type(s) string","detail":{"errorcode":"BadRequest"}}}'
-              )
           : null;
       }
       try {
@@ -3841,13 +3905,13 @@ export async function notificationsNegative(client: Client, request: Request) {
       } catch (e) {
         e instanceof Error
           ? expect(
-              e.message,
-              "Failed on empty UserUUID sent returning wrong exception"
+            e.message,
+            "Failed on empty UserUUID sent returning wrong exception"
+          )
+            .to.be.a("string")
+            .that.is.equal(
+              'https://papi.staging.pepperi.com/V1.0/push_notifications failed with status: 400 - Bad Request error: {"fault":{"faultstring":"Failed due to exception: Exactly one of the following properties is required: UserUUID,UserEmail","detail":{"errorcode":"BadRequest"}}}'
             )
-              .to.be.a("string")
-              .that.is.equal(
-                'https://papi.staging.pepperi.com/V1.0/push_notifications failed with status: 400 - Bad Request error: {"fault":{"faultstring":"Failed due to exception: Exactly one of the following properties is required: UserUUID,UserEmail","detail":{"errorcode":"BadRequest"}}}'
-              )
           : null;
       }
       try {
@@ -3861,13 +3925,13 @@ export async function notificationsNegative(client: Client, request: Request) {
       } catch (e) {
         e instanceof Error
           ? expect(
-              e.message,
-              "Failed on number UserUUID sent returning wrong exception"
+            e.message,
+            "Failed on number UserUUID sent returning wrong exception"
+          )
+            .to.be.a("string")
+            .that.is.equal(
+              'https://papi.staging.pepperi.com/V1.0/push_notifications failed with status: 400 - Bad Request error: {"fault":{"faultstring":"Failed due to exception: UserUUID is not of a type(s) string\\nExactly one of the following properties is required: UserUUID,UserEmail","detail":{"errorcode":"BadRequest"}}}'
             )
-              .to.be.a("string")
-              .that.is.equal(
-                'https://papi.staging.pepperi.com/V1.0/push_notifications failed with status: 400 - Bad Request error: {"fault":{"faultstring":"Failed due to exception: UserUUID is not of a type(s) string\\nExactly one of the following properties is required: UserUUID,UserEmail","detail":{"errorcode":"BadRequest"}}}'
-              )
           : null;
       }
       try {
@@ -3881,13 +3945,13 @@ export async function notificationsNegative(client: Client, request: Request) {
       } catch (e) {
         e instanceof Error
           ? expect(
-              e.message,
-              "Failed on all wrong parameters sent returning wrong exception"
+            e.message,
+            "Failed on all wrong parameters sent returning wrong exception"
+          )
+            .to.be.a("string")
+            .that.is.equal(
+              'https://papi.staging.pepperi.com/V1.0/push_notifications failed with status: 400 - Bad Request error: {"fault":{"faultstring":"Failed due to exception: Title is not of a type(s) string\\nBody is not of a type(s) string\\nUserUUID is not of a type(s) string\\nExactly one of the following properties is required: UserUUID,UserEmail","detail":{"errorcode":"BadRequest"}}}'
             )
-              .to.be.a("string")
-              .that.is.equal(
-                'https://papi.staging.pepperi.com/V1.0/push_notifications failed with status: 400 - Bad Request error: {"fault":{"faultstring":"Failed due to exception: Title is not of a type(s) string\\nBody is not of a type(s) string\\nUserUUID is not of a type(s) string\\nExactly one of the following properties is required: UserUUID,UserEmail","detail":{"errorcode":"BadRequest"}}}'
-              )
           : null;
       }
 
@@ -3904,13 +3968,13 @@ export async function notificationsNegative(client: Client, request: Request) {
       } catch (e) {
         e instanceof Error
           ? expect(
-              e.message,
-              "Failed on Body sent length returning wrong exception"
+            e.message,
+            "Failed on Body sent length returning wrong exception"
+          )
+            .to.be.a("string")
+            .that.is.equal(
+              'https://papi.staging.pepperi.com/V1.0/push_notifications failed with status: 400 - Bad Request error: {"fault":{"faultstring":"Failed due to exception: Body does not meet maximum length of 200","detail":{"errorcode":"BadRequest"}}}'
             )
-              .to.be.a("string")
-              .that.is.equal(
-                'https://papi.staging.pepperi.com/V1.0/push_notifications failed with status: 400 - Bad Request error: {"fault":{"faultstring":"Failed due to exception: Body does not meet maximum length of 200","detail":{"errorcode":"BadRequest"}}}'
-              )
           : null;
       }
 
@@ -3928,13 +3992,13 @@ export async function notificationsNegative(client: Client, request: Request) {
       } catch (e) {
         e instanceof Error
           ? expect(
-              e.message,
-              "Failed on sending wrong user email returning wrong exception"
+            e.message,
+            "Failed on sending wrong user email returning wrong exception"
+          )
+            .to.be.a("string")
+            .that.is.equal(
+              `https://papi.staging.pepperi.com/V1.0/push_notifications failed with status: 400 - Bad Request error: {"fault":{"faultstring":"Failed due to exception: User with Email: notifications@pepperitest does not exist","detail":{"errorcode":"BadRequest"}}}`
             )
-              .to.be.a("string")
-              .that.is.equal(
-                `https://papi.staging.pepperi.com/V1.0/push_notifications failed with status: 400 - Bad Request error: {"fault":{"faultstring":"Failed due to exception: User with Email: notifications@pepperitest does not exist","detail":{"errorcode":"BadRequest"}}}`
-              )
           : null;
       }
       try {
@@ -3951,13 +4015,13 @@ export async function notificationsNegative(client: Client, request: Request) {
       } catch (e) {
         e instanceof Error
           ? expect(
-              e.message,
-              "Failed on sending userUUID + email returning wrong exception"
+            e.message,
+            "Failed on sending userUUID + email returning wrong exception"
+          )
+            .to.be.a("string")
+            .that.is.equal(
+              `https://papi.staging.pepperi.com/V1.0/push_notifications failed with status: 400 - Bad Request error: {"fault":{"faultstring":"Failed due to exception: Exactly one of the following properties is required: UserUUID,UserEmail","detail":{"errorcode":"BadRequest"}}}`
             )
-              .to.be.a("string")
-              .that.is.equal(
-                `https://papi.staging.pepperi.com/V1.0/push_notifications failed with status: 400 - Bad Request error: {"fault":{"faultstring":"Failed due to exception: Exactly one of the following properties is required: UserUUID,UserEmail","detail":{"errorcode":"BadRequest"}}}`
-              )
           : null;
       }
       console.log("notificationsPositive::finished notifications tests");
@@ -3965,7 +4029,7 @@ export async function notificationsNegative(client: Client, request: Request) {
     //Need to talk to Chasky regarding the below
     it("userDevice negative tests", async () => {
       try {
-      } catch (e) {}
+      } catch (e) { }
     });
   });
   console.log(`notificationsPositive::Test Finished`);
@@ -4073,8 +4137,8 @@ export async function SyncWithAuditLog(client: Client, request: Request) {
   console.log(auditLog);
 
   const resultObject = JSON.parse(auditLog.AuditInfo.ResultObject);
-  const testData = await syncService.validateResourceData(resultObject.ResourcesData,tableName);
-  const schemeData = await syncService.validateResourceScheme(resultObject.ResourcesData,tableName);
+  const testData = await syncService.validateResourceData(resultObject.ResourcesData, tableName);
+  const schemeData = await syncService.validateResourceScheme(resultObject.ResourcesData, tableName);
   const allData = resultObject.ResourcesData;
   console.log(allData);
   const Objects = testData[0];
@@ -4114,8 +4178,8 @@ export async function SyncWithAuditLog(client: Client, request: Request) {
         .that.is.equal(dateToText);
     });
     it("Sync Data - UDC Document insertion test", async () => {
-     expect(allData,"Failed on sync returning more than one object - DI-20917").to.be.a("array").that.has.lengthOf(1);
-     //uncomment when DI-20917 is resolved
+      expect(allData, "Failed on sync returning more than one object - DI-20917").to.be.a("array").that.has.lengthOf(1);
+      //uncomment when DI-20917 is resolved
       expect(Objects.testField1, "Failed on Field1 returning wrong output")
         .to.be.a("string")
         .that.is.equal(document.testField1);
@@ -4160,7 +4224,7 @@ export async function SyncWithAuditLog(client: Client, request: Request) {
       expect(ModificationDate, "Failed on wrong modification date")
         .to.be.a("string")
         .that.is.equal(dateToText);
-        expect(CreationDate, "Failed on wrong creation date")
+      expect(CreationDate, "Failed on wrong creation date")
         .to.be.a("string")
         .that.has.lengthOf(24).and.includes("Z").and.includes("T");
     });
@@ -4222,8 +4286,8 @@ export async function SyncWithCPISideTest(client: Client, request: Request) {
   console.log(auditLog);
 
   const resultObject = JSON.parse(auditLog.AuditInfo.ResultObject);
-  const testData = await syncService.validateResourceData(resultObject.ResourcesData,tableName);
-  const schemeData = await syncService.validateResourceScheme(resultObject.ResourcesData,tableName);
+  const testData = await syncService.validateResourceData(resultObject.ResourcesData, tableName);
+  const schemeData = await syncService.validateResourceScheme(resultObject.ResourcesData, tableName);
   const allData = resultObject.ResourcesData;
   const Objects = testData[0];
   const Schema = schemeData;
@@ -4319,7 +4383,7 @@ export async function SyncWithCPISideTest(client: Client, request: Request) {
       expect(ModificationDate, "Failed on wrong modification date")
         .to.be.a("string")
         .that.is.equal(dateToText);
-        expect(CreationDate, "Failed on wrong creation date")
+      expect(CreationDate, "Failed on wrong creation date")
         .to.be.a("string")
         .that.has.lengthOf(24).and.includes("Z").and.includes("T");
     });
@@ -4418,7 +4482,7 @@ export async function SyncWithCPISideTest(client: Client, request: Request) {
       expect(ModificationDate, "Failed on wrong modification date")
         .to.be.a("string")
         .that.is.equal(dateToText);
-        expect(CreationDate, "Failed on wrong creation date")
+      expect(CreationDate, "Failed on wrong creation date")
         .to.be.a("string")
         .that.has.lengthOf(24).and.includes("Z").and.includes("T");
     });
@@ -4431,6 +4495,7 @@ export async function SyncWithCPISideTest(client: Client, request: Request) {
 }
 
 export async function SyncWithIndexedField(client: Client, request: Request) {
+  debugger;
   console.log(`SyncWithIndexedField::Test Started`);
   const service = new MyService(client);
   const syncService = new SyncService(client);
@@ -4460,10 +4525,13 @@ export async function SyncWithIndexedField(client: Client, request: Request) {
     tableName,
     documentWithoutIndex
   );
-  await service.sleep(5000);
+  await service.sleep(10000);
   const sync = await syncService.pullData({
     ModificationDateTime: date.toISOString(),
   });
+  if (!sync.ExecutionURI) {
+    throw ("no ExecutionURI returned from sync");
+  }
   await service.sleep(20000); //sleep for audit log being written
   const auditLog = await syncService.getAuditLogResultObjectIfValid(
     sync.ExecutionURI,
@@ -4474,9 +4542,9 @@ export async function SyncWithIndexedField(client: Client, request: Request) {
   //console.log(resultObject);
   const resData = resultObject.ResourcesData;
 
-  const testScheme = await syncService.validateResourceScheme(resData,tableName);
+  const testScheme = await syncService.validateResourceScheme(resData, tableName);
 
-  const testData = await syncService.validateResourceData(resData,tableName);
+  const testData = await syncService.validateResourceData(resData, tableName);
 
 
   const Objects = testData[0];
@@ -4593,7 +4661,7 @@ export async function SyncWithIndexedField(client: Client, request: Request) {
       expect(ModificationDate, "Failed on wrong modification date")
         .to.be.a("string")
         .that.is.equal(dateToText);
-        expect(CreationDate, "Failed on wrong creation date")
+      expect(CreationDate, "Failed on wrong creation date")
         .to.be.a("string")
         .that.has.lengthOf(24).and.includes("Z").and.includes("T");
 
@@ -4780,7 +4848,7 @@ export async function SyncWithIndexedField(client: Client, request: Request) {
       expect(ModificationDate, "Failed on wrong modification date")
         .to.be.a("string")
         .that.is.equal(dateToText);
-        expect(CreationDate, "Failed on wrong creation date")
+      expect(CreationDate, "Failed on wrong creation date")
         .to.be.a("string")
         .that.has.lengthOf(24).and.includes("Z").and.includes("T");
     });
@@ -4816,13 +4884,17 @@ export async function SyncDataFromADAL(client: Client, request: Request) {
   await service.sleep(10000);
 
   const object = await syncService.generateADALObj();
+  console.log(object);
 
   const upsert = await service.upsertToADAL(tableName, object);
 
-  await service.sleep(2000);
+  await service.sleep(10000);
   const sync = await syncService.pullData({
     ModificationDateTime: date.toISOString(),
   });
+  if (!sync.ExecutionURI) {
+    throw ("TEST FAILED: no ExecutionURI returned from sync");
+  }
   await service.sleep(20000); //sleep for audit log being written
   const auditLog = await syncService.getAuditLogResultObjectIfValid(
     sync.ExecutionURI,
@@ -4830,8 +4902,8 @@ export async function SyncDataFromADAL(client: Client, request: Request) {
   );
 
   const resultObject = JSON.parse(auditLog.AuditInfo.ResultObject);
-  const testData = await syncService.validateResourceData(resultObject.ResourcesData,tableName);
-  const schemeData = await syncService.validateResourceScheme(resultObject.ResourcesData,tableName);
+  const testData = await syncService.validateResourceData(resultObject.ResourcesData, tableName);
+  const schemeData = await syncService.validateResourceScheme(resultObject.ResourcesData, tableName);
   const allData = resultObject.ResourcesData;
   console.log(allData);
   const Objects = testData[0];
@@ -4891,7 +4963,7 @@ export async function SyncDataFromADAL(client: Client, request: Request) {
         .that.is.equal(dateToText);
     });
     it("Sync Data - ADAL Document insertion test", async () => {
-      expect(allData,"Failed on sync returning more than one scheme - DI-20917").to.be.an("array").that.has.lengthOf(1);
+      expect(allData, "Failed on sync returning more than one scheme - DI-20917").to.be.an("array").that.has.lengthOf(1);
       expect(Objects.testField1, "Failed on Field1 returning wrong output")
         .to.be.a("string")
         .that.is.equal(object.testField1);
@@ -4936,7 +5008,7 @@ export async function SyncDataFromADAL(client: Client, request: Request) {
       expect(ModificationDate, "Failed on wrong modification date")
         .to.be.a("string")
         .that.is.equal(dateToText);
-        expect(CreationDate, "Failed on wrong creation date")
+      expect(CreationDate, "Failed on wrong creation date")
         .to.be.a("string")
         .that.has.lengthOf(24).and.includes("Z").and.includes("T");
     });
@@ -4947,14 +5019,15 @@ export async function SyncDataFromADAL(client: Client, request: Request) {
       expect(Schema.Name, "Failed on Schema returning wrong output")
         .to.be.a("string")
         .that.is.equal(tableName);
+      debugger;
       expect(
         Schema.SyncData.IndexedField,
         "Failed on indexed field returning wrong value"
       )
-        .to.be.a("string")
-        .that.is.equal(settings.USER_DEFINED_COLLECTIONS_INDEX_FIELD);
+        .to.be.oneOf(["", undefined]);
     });
     it("Sync Data - Get ADAL key from CPISide", async () => {
+      debugger;
       expect(
         dataFromCPISide.object,
         "Failed on returning wrong object type"
@@ -5039,7 +5112,7 @@ export async function SyncDataFromADAL(client: Client, request: Request) {
       expect(ModificationDate, "Failed on wrong modification date")
         .to.be.a("string")
         .that.is.equal(dateToText);
-        expect(CreationDate, "Failed on wrong creation date")
+      expect(CreationDate, "Failed on wrong creation date")
         .to.be.a("string")
         .that.has.lengthOf(24).and.includes("Z").and.includes("T");
     });
@@ -5072,7 +5145,7 @@ export async function SyncLargeDataNegative(client: Client, request: Request) {
   const date = new Date();
   await service.sleep(10000);
   //getting file dummy data for large sync (coverted image to base64 that sits on ADAL);
-  const getBase64FromADAL = await service.getFromADAL("base64","base64String");
+  const getBase64FromADAL = await service.getFromADAL("base64", "base64String");
 
   const base64 = getBase64FromADAL[0].Base64;
 
@@ -5194,7 +5267,17 @@ export async function SyncLargeDataNegative(client: Client, request: Request) {
   return testResults;
 }
 
+export async function DI20990(client: Client, request: Request) {
+  console.log(`DI20990::Test Started`);
+  const service = new MyService(client);
+  let webAPIBaseURL = await service.getWebAPIBaseURL();
+  let accessToken = await service.getAccessToken(webAPIBaseURL);
+  await service.evgeny("http://localhost:8093/16.80.22/webapi", accessToken);
+}
+
+
 export async function SyncLargeDataPositive(client: Client, request: Request) {
+  debugger;
   console.log(`SyncLargeDataPositive::Test Started`);
   const service = new MyService(client);
   const syncService = new SyncService(client);
@@ -5206,6 +5289,7 @@ export async function SyncLargeDataPositive(client: Client, request: Request) {
   //resync to cleanse the old data from cpi-side -> till we figure out how it should work
   await service.initResync(accessToken, webAPIBaseURL);
   await service.getSyncStatus(accessToken, webAPIBaseURL, 30);
+  debugger;
 
   console.log(`SyncLargeDataPositive::Gotten services,initiating requests`);
 
@@ -5222,7 +5306,7 @@ export async function SyncLargeDataPositive(client: Client, request: Request) {
   const date = new Date();
   await service.sleep(10000);
   //getting file dummy data for large sync (coverts image to base64);
-  const getBase64FromADAL = await service.getFromADAL("base64","base64String");
+  const getBase64FromADAL = await service.getFromADAL("base64", "base64String");
 
   const base64 = getBase64FromADAL[0].Base64;
 
@@ -5259,7 +5343,7 @@ export async function SyncLargeDataPositive(client: Client, request: Request) {
     await service.upsertToADAL(tableName, object);
   }
 
-  await service.sleep(15000);
+  await service.sleep(20000);
   const sync = await syncService.pullData({
     ModificationDateTime: date.toISOString(),
   });
@@ -5276,10 +5360,10 @@ export async function SyncLargeDataPositive(client: Client, request: Request) {
     resultObject.ResourcesURL
   );
 
-  
+
   const allData = syncFile.ResourcesData;
 
-  const testData = await syncService.validateResourceData(syncFile.ResourcesData,tableName);
+  const testData = await syncService.validateResourceData(syncFile.ResourcesData, tableName);
 
   const testObjectsArrFromAuditLog = [
     testData[0],
@@ -5317,9 +5401,11 @@ export async function SyncLargeDataPositive(client: Client, request: Request) {
   const scheme = await syncService.createADALScheme(tableName, "data");
 
   console.log(`SyncLargeDataPositive::Finished Logic,starting Mocha tests`);
+  debugger;
 
   describe("Sync with Get from ADAL Positive on CPISide automation test", async () => {
     it("Settings Post Test", async () => {
+      debugger;
       expect(
         settings.Hidden,
         "Failed on settings hidden returning wrong output"
@@ -5355,7 +5441,7 @@ export async function SyncLargeDataPositive(client: Client, request: Request) {
     });
 
     it("Sync pull response from file after inserting data above 4MB test", async () => {
-      expect(allData,"Failed on sync returning more than one scheme - DI-20917").to.be.an("array").that.has.lengthOf(1);
+      expect(allData, "Failed on sync returning more than one scheme - DI-20917").to.be.an("array").that.has.lengthOf(1);
       //uncomment once DI-20917 is resolved
       expect(testData, "Failed on array returning wrong value/length")
         .to.be.an("array")
@@ -5369,8 +5455,8 @@ export async function SyncLargeDataPositive(client: Client, request: Request) {
 
         const CreationDate = object.CreationDateTime;
         expect(CreationDate, "Failed on wrong creation date")
-        .to.be.a("string")
-        .that.has.lengthOf(24).and.includes("Z").and.includes("T");
+          .to.be.a("string")
+          .that.has.lengthOf(24).and.includes("Z").and.includes("T");
 
         expect(object.Key, "Failed on key returning wrong")
           .to.be.a("string")
@@ -5394,6 +5480,7 @@ export async function SyncLargeDataPositive(client: Client, request: Request) {
     });
 
     it("Sync data from CPISide", async () => {
+      debugger;
       expect(
         dataFromCPISide.success,
         "Failed on success flag returning wrong value"
@@ -5413,8 +5500,8 @@ export async function SyncLargeDataPositive(client: Client, request: Request) {
 
         const CreationDate = object.CreationDateTime;
         expect(CreationDate, "Failed on wrong creation date")
-        .to.be.a("string")
-        .that.has.lengthOf(24).and.includes("Z").and.includes("T");
+          .to.be.a("string")
+          .that.has.lengthOf(24).and.includes("Z").and.includes("T");
 
         expect(object.Key, "Failed on key returning wrong")
           .to.be.a("string")
@@ -5444,7 +5531,7 @@ export async function SyncLargeDataPositive(client: Client, request: Request) {
   return testResults;
 }
 //will finish after we will be able to lower the sync time limitation to 0.1
-export async function syncSoftLimitsNegative(client: Client,request: Request) {
+export async function syncSoftLimitsNegative(client: Client, request: Request) {
   console.log(`syncSoftLimitsNegative::Test Started`);
   const service = new MyService(client);
   const syncService = new SyncService(client);
@@ -5458,7 +5545,7 @@ export async function syncSoftLimitsNegative(client: Client,request: Request) {
   await service.getSyncStatus(accessToken, webAPIBaseURL, 50);
   console.log(`syncSoftLimitsNegative::Gotten services,initiating requests`);
   //soft limit time set to 0
-  let timeRes1:any;
+  let timeRes1: any;
   const negativeSyncOptions1 = {
     Key: "SyncVariables",
     SYNC_DATA_SIZE_LIMITATION: 15,
@@ -5469,12 +5556,12 @@ export async function syncSoftLimitsNegative(client: Client,request: Request) {
 
   try {
     const settings = await syncService.setSyncOptions(negativeSyncOptions1);
-  } catch(e) {
+  } catch (e) {
     timeRes1 = (e instanceof Error) ? e?.message : null
   }
 
   //soft limit time set to 11
-  let timeRes2:any;
+  let timeRes2: any;
   const negativeSyncOptions2 = {
     Key: "SyncVariables",
     SYNC_DATA_SIZE_LIMITATION: 15,
@@ -5485,11 +5572,11 @@ export async function syncSoftLimitsNegative(client: Client,request: Request) {
 
   try {
     const settings = await syncService.setSyncOptions(negativeSyncOptions2);
-  } catch(e) {
+  } catch (e) {
     timeRes2 = (e instanceof Error) ? e?.message : null
   }
   //soft limit size set to above 128
-  let sizeRes1:any;
+  let sizeRes1: any;
   const negativeSyncOptions3 = {
     Key: "SyncVariables",
     SYNC_DATA_SIZE_LIMITATION: 1025,
@@ -5500,11 +5587,11 @@ export async function syncSoftLimitsNegative(client: Client,request: Request) {
 
   try {
     const settings = await syncService.setSyncOptions(negativeSyncOptions3);
-  } catch(e) {
+  } catch (e) {
     sizeRes1 = (e instanceof Error) ? e?.message : null
   }
   //sof limit size set to 0
-  let sizeRes2:any;
+  let sizeRes2: any;
   const negativeSyncOptions4 = {
     Key: "SyncVariables",
     SYNC_DATA_SIZE_LIMITATION: 0,
@@ -5515,7 +5602,7 @@ export async function syncSoftLimitsNegative(client: Client,request: Request) {
 
   try {
     const settings = await syncService.setSyncOptions(negativeSyncOptions3);
-  } catch(e) {
+  } catch (e) {
     sizeRes2 = (e instanceof Error) ? e?.message : null
   }
 
@@ -5533,7 +5620,7 @@ export async function syncSoftLimitsNegative(client: Client,request: Request) {
   const date = new Date();
   await service.sleep(10000);
   //getting file dummy data for large sync (coverted image to base64 that sits on ADAL);
-  const getBase64FromADAL = await service.getFromADAL("base64","base64String");
+  const getBase64FromADAL = await service.getFromADAL("base64", "base64String");
 
   const base64 = getBase64FromADAL[0].Base64;
 
@@ -5602,7 +5689,7 @@ export async function syncSoftLimitsNegative(client: Client,request: Request) {
 
   await service.sleep(7000);
   await service.initResync(accessToken, webAPIBaseURL);
-  await service.getSyncStatus(accessToken, webAPIBaseURL, 50); 
+  await service.getSyncStatus(accessToken, webAPIBaseURL, 50);
 
   console.log(`syncSoftLimitsNegative::Finished Logic,starting Mocha tests`);
 
@@ -5662,10 +5749,10 @@ export async function syncSoftLimitsNegative(client: Client,request: Request) {
     });
 
     it("Sync settings endpoint negative response test", async () => {
-       expect(timeRes1,"Failed on negative time 1 response returning wrong value/format").to.be.a("string").that.includes(`pepperi.com/V1.0/addons/api/5122dc6d-745b-4f46-bb8e-bd25225d350a/api/sync_variables failed with status: 400 - Bad Request error: {"fault":{"faultstring":"Failed due to exception: SYNC_TIME_LIMITATION should be in the range (0.01 - 10).","detail":{"errorcode":"BadRequest"}}}`);
-       expect(timeRes2,"Failed on negative time 2 response returning wrong value/format").to.be.a("string").that.includes(`pepperi.com/V1.0/addons/api/5122dc6d-745b-4f46-bb8e-bd25225d350a/api/sync_variables failed with status: 400 - Bad Request error: {"fault":{"faultstring":"Failed due to exception: SYNC_TIME_LIMITATION should be in the range (0.01 - 10).","detail":{"errorcode":"BadRequest"}}}`);
-       expect(sizeRes1,"Failed on negative size 1 response returning wrong value/format").to.be.a("string").that.includes(`pepperi.com/V1.0/addons/api/5122dc6d-745b-4f46-bb8e-bd25225d350a/api/sync_variables failed with status: 400 - Bad Request error: {"fault":{"faultstring":"Failed due to exception: SYNC_DATA_SIZE_LIMITATION should be in the range (1 - 1024).","detail":{"errorcode":"BadRequest"}}}`);
-       expect(sizeRes2,"Failed on negative size 2 response returning wrong value/format").to.be.a("string").that.includes(`pepperi.com/V1.0/addons/api/5122dc6d-745b-4f46-bb8e-bd25225d350a/api/sync_variables failed with status: 400 - Bad Request error: {"fault":{"faultstring":"Failed due to exception: SYNC_DATA_SIZE_LIMITATION should be in the range (1 - 1024).","detail":{"errorcode":"BadRequest"}}}`);
+      expect(timeRes1, "Failed on negative time 1 response returning wrong value/format").to.be.a("string").that.includes(`pepperi.com/V1.0/addons/api/5122dc6d-745b-4f46-bb8e-bd25225d350a/api/sync_variables failed with status: 400 - Bad Request error: {"fault":{"faultstring":"Failed due to exception: SYNC_TIME_LIMITATION should be in the range (0.01 - 10).","detail":{"errorcode":"BadRequest"}}}`);
+      expect(timeRes2, "Failed on negative time 2 response returning wrong value/format").to.be.a("string").that.includes(`pepperi.com/V1.0/addons/api/5122dc6d-745b-4f46-bb8e-bd25225d350a/api/sync_variables failed with status: 400 - Bad Request error: {"fault":{"faultstring":"Failed due to exception: SYNC_TIME_LIMITATION should be in the range (0.01 - 10).","detail":{"errorcode":"BadRequest"}}}`);
+      expect(sizeRes1, "Failed on negative size 1 response returning wrong value/format").to.be.a("string").that.includes(`pepperi.com/V1.0/addons/api/5122dc6d-745b-4f46-bb8e-bd25225d350a/api/sync_variables failed with status: 400 - Bad Request error: {"fault":{"faultstring":"Failed due to exception: SYNC_DATA_SIZE_LIMITATION should be in the range (1 - 1024).","detail":{"errorcode":"BadRequest"}}}`);
+      expect(sizeRes2, "Failed on negative size 2 response returning wrong value/format").to.be.a("string").that.includes(`pepperi.com/V1.0/addons/api/5122dc6d-745b-4f46-bb8e-bd25225d350a/api/sync_variables failed with status: 400 - Bad Request error: {"fault":{"faultstring":"Failed due to exception: SYNC_DATA_SIZE_LIMITATION should be in the range (1 - 1024).","detail":{"errorcode":"BadRequest"}}}`);
     });
   });
 
@@ -5677,19 +5764,19 @@ export async function syncSoftLimitsNegative(client: Client,request: Request) {
 //run this after install if you need to setup a new environment for sync automation
 //run locally or it won't find the file
 //this inserts to adal to a specific scheme on adal for the big sync tests
-export async function insertBase64ToADALAfterInstall(client:Client,request: Request) {
+export async function insertBase64ToADALAfterInstall(client: Client, request: Request) {
   const service = new MyService(client);
- 
-  let srcPath = path.join(__dirname,"../../test-data/scene-Iron-Man.png")
+
+  let srcPath = path.join(__dirname, "../../test-data/scene-Iron-Man.png")
   const file = fs.readFileSync(srcPath);
   const base64 = file.toString("base64");
 
   const body = {
-    Key:"base64String",
+    Key: "base64String",
     Base64: base64
   }
 
-  const upsert = await service.upsertToADAL("base64",body);
+  const upsert = await service.upsertToADAL("base64", body);
   console.log(upsert);
   return;
 

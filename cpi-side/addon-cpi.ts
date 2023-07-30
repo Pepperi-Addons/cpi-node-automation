@@ -1,7 +1,7 @@
 import "@pepperi-addons/cpi-node";
 import Tester from "./tester";
-import { Item, TransactionLine, Transaction } from "@pepperi-addons/cpi-node";
-import { NavigationOptions,UDCGetParams,UDCGetListParams } from "./services/general.service";
+import { Item, TransactionLine, Transaction, FlowObject } from "@pepperi-addons/cpi-node";
+import { NavigationOptions, UDCGetParams, UDCGetListParams } from "./services/general.service";
 import DataService, {
   OCEvents,
   addonUUID,
@@ -15,6 +15,8 @@ import { dataObjectCrud } from "./api-tests/dataobject-crud";
 import { dataObjectNegativeCrud } from "./api-tests/dataobject-negative-crud";
 import { firstUIObjectCrud } from "./api-tests/ui-object-crud-1";
 import { secondUIObjectCrud } from "./api-tests/ui-object-crud-2";
+import { Client, EventKey } from "@pepperi-addons/cpi-node/build/cpi-side/events";
+import { AddonsDataSearchParams } from "@pepperi-addons/cpi-node/build/cpi-side/client-api";
 
 //**Test data variables */
 let ExID: string;
@@ -94,19 +96,20 @@ export async function load(configuration: any) {
   );
   console.log(
     "clientActionsTester::withinHudClientActionsTestActive: " +
-      withinHudClientActionsTestActive
+    withinHudClientActionsTestActive
   );
   console.log(
     "clientActionsTester::InterceptorActionsTest: " + InterceptorActionsTest
   );
   console.log(
     "interceptorsTimeoutTester::InterceptorsTimeoutTestActive: " +
-      InterceptorsTimeoutTestActive
+    InterceptorsTimeoutTestActive
   );
   console.log(
     "SyncInteceptorsTest::SyncInteceptorsActive: " +
     SyncInteceptorsActive
   );
+
   //feature flagging -> meaning these load and work in the background only when the relevant flag is available on ADAL (triggerd by test)
   if (InterceptorActionsTest === true) {
     //two exact events with two separate actions
@@ -266,6 +269,7 @@ export async function load(configuration: any) {
       "TSAButtonPressed",
       { FieldID: "sixthTrigger" },
       async (data, next, main) => {
+        debugger;
         console.log(
           "InterceptorActionsTest:: sixthTrigger - Inside first main"
         );
@@ -281,6 +285,7 @@ export async function load(configuration: any) {
       "TSAButtonPressed",
       { FieldID: "sixthTrigger" },
       async (data, next, main) => {
+        debugger;
         console.log(
           "InterceptorActionsTest:: sixthTrigger - Inside second main"
         );
@@ -288,9 +293,11 @@ export async function load(configuration: any) {
           ?.captureGeoLocation({ accuracy: "High", maxWaitTime: 1000 })
           .then((res) => {
             console.log("InterceptorActionsTest:: sixthTrigger - Inside then");
+            debugger;
             actionsArr.push(JSON.stringify(res));
           });
         try {
+          debugger;
           const upsert = await pepperi.api.userDefinedTables.upsert({
             table: "actionsSequence",
             mainKey: new Date().toISOString(),
@@ -806,9 +813,9 @@ export async function load(configuration: any) {
     const date = new Date();
     console.log(
       "LoadTester::write to UDT by the " +
-        loadTestCounter +
-        " Index, TimeStamp: " +
-        date.toISOString()
+      loadTestCounter +
+      " Index, TimeStamp: " +
+      date.toISOString()
     );
     try {
       await pepperi.api.userDefinedTables.upsert({
@@ -1294,13 +1301,13 @@ export async function load(configuration: any) {
       }
     );
   }
-  if (SyncInteceptorsActive=== true) {
-     pepperi.events.intercept("SyncStarted",{},async(data,next,main) => {
-      
+  if (SyncInteceptorsActive === true) {
+    pepperi.events.intercept("SyncStarted", {}, async (data, next, main) => {
+
       const date = new Date();
       console.log(
         "SyncEventsTester:: Sync Started write to UDT by the TimeStamp: " +
-          date.toISOString()
+        date.toISOString()
       );
       try {
         await pepperi.api.userDefinedTables.upsert({
@@ -1315,14 +1322,14 @@ export async function load(configuration: any) {
       }
 
 
-     });
+    });
 
-     pepperi.events.intercept("SyncTerminated",{},async(data,next,main) => {
+    pepperi.events.intercept("SyncTerminated", {}, async (data, next, main) => {
       const parsedData = JSON.stringify(data);
       const date = new Date();
       console.log(
         "SyncEventsTester:: Sync terminated : write to UDT by the TimeStamp: " +
-          date.toISOString()
+        date.toISOString()
       );
       try {
         await pepperi.api.userDefinedTables.upsert({
@@ -1432,10 +1439,1208 @@ router.get("/PerformenceTest", async (req, res, next) => {
     currentResults: perfResults,
   });
 });
+//EVGENY
+router.get("/DI-20990", async (req, res, next) => {
+  console.log("Inside DI-20990 Test");
+  let a;
+  try {
+    a = await pepperi.slugs.getPage("djfgvsdahfigsdi");
+    // await pepperi.addons.api.uuid("2b39d63e-0982-4ada-8cbb-737b03b9ee58").post(opt);
+  } catch (ex) {
+    const z = ex;
+  }
+  res.json({
+    currentResults: a,
+  });
+});
+
+router.get("/DI", async (req, res, next) => {
+  debugger;
+  pepperi.events.intercept(
+    "TSAButtonPressed",
+    { FieldID: "sixthTrigger" },
+    async (data, next, main) => {
+      debugger;
+      console.log(
+        "InterceptorActionsTest:: sixthTrigger - Inside first main"
+      );
+      const res = await data.client?.captureGeoLocation({
+        accuracy: "Medium",
+        maxWaitTime: 400,
+      });
+      actionsArr.push(JSON.stringify(res));
+    }
+  );
+
+  pepperi.events.intercept(
+    "TSAButtonPressed",
+    { FieldID: "sixthTrigger" },
+    async (data, next, main) => {
+      debugger;
+      console.log(
+        "InterceptorActionsTest:: sixthTrigger - Inside second main"
+      );
+      data.client
+        ?.captureGeoLocation({ accuracy: "High", maxWaitTime: 1000 })
+        .then((res) => {
+          console.log("InterceptorActionsTest:: sixthTrigger - Inside then");
+          actionsArr.push(JSON.stringify(res));
+        });
+      try {
+        const upsert = await pepperi.api.userDefinedTables.upsert({
+          table: "actionsSequence",
+          mainKey: new Date().toISOString(),
+          secondaryKey: "TestResults",
+          value: actionsArr.toString(),
+        });
+        console.log(upsert);
+      } catch (err) {
+        console.log(err);
+      }
+    }
+  );
+  const res2 = await pepperi.events.emit(
+    'TSAButtonPressed',
+    { FieldID: "sixthTrigger" }
+  )
+  debugger;
+});
+
+router.get("/DI-21502", async (req, res, next) => {
+  debugger;
+  let respGet;
+  let resp;
+  try {
+    // respGet = await pepperi.api.adal.get({
+    //   addon: "2b39d63e-0982-4ada-8cbb-737b03b9ee58", // mandatory
+    //   table: "UpsertTest", // mandatory
+    //   key: "evgeny11",
+    // });
+    resp = await pepperi.api.adal.upsert({
+      addon: "2b39d63e-0982-4ada-8cbb-737b03b9ee58", // mandatory
+      table: "UpsertTestLatest", // mandatory
+      indexedField: '', // optional
+      object: {
+        Key: "evgeny11",
+        evgeny: "aaaaaaaa"
+      },
+    });
+    debugger;
+  } catch (ex) {
+    const a = ex;
+    debugger;
+  }
+  res.json({
+    currentResults: resp,
+  });
+
+});
+
+router.get("/zozo", async (req, res, next) => {
+  res.json(15);
+});
+
+
+router.get("/DI-21871", async (req, res, next) => {
+  await pepperi.resources.resource('resources').key("TestUDC").get();
+});
+
+
+router.get("/DI-23750", async (req, res, next) => {//evgeny 222
+  debugger;
+  const runFlowObject: FlowObject = {
+    FlowKey: 'c3a44b77-f419-4c2a-a78b-118c9beb5b26',
+    FlowParams: {}
+    //     Param1: {
+    //         Source: 'Dynamic',
+    //         Value: 'someValue'
+    //     }
+    // }
+  };
+  let res2;
+  try {
+    res2 = await pepperi.flows.run({
+      RunFlow: runFlowObject,
+      Data: {},
+    });
+  } catch (error) {
+    debugger;
+  }
+  console.log('EVGENY: ' + res2);
+  debugger;
+});
+
+router.get("/new_test", async (req, res, next) => {//evgeny 222
+  debugger;
+  let errorMessage = "";
+  let resp;
+  try {
+    resp = await pepperi.addons.data.schemes.uuid("dc8c5ca7-3fcc-4285-b790-349c7f3908bd").name("flows").get();
+  } catch (error) {
+    errorMessage = (error as any).message;
+    debugger;
+  }
+  debugger;
+});
+
+router.get("/DI-21685", async (req, res, next) => {
+  let resp;
+  let errorMessage;
+  try {
+    debugger;
+    resp = await pepperi.resources.resource('resources').search({});
+    const z = resp.filter(collection => collection.Name.includes("survey"));
+    debugger;
+  } catch (error) {
+    debugger;
+    errorMessage = (error as any).message;
+  }
+  debugger;
+});
+
+router.get("/DI-21834", async (req, res, next) => {
+  debugger;
+  const a = await pepperi.addons.data.relations.pageBlocks();
+  const b = await pepperi.addons.data.relations.addonBlocks();
+  const c = (await pepperi.addons.data.relations.pageBlocks())[0].AddonBaseURL;
+  console.log(`a:${a}, b:${b}, c:${c}`);
+  debugger;
+});
+
+router.get("/DI-21858", async (req, res, next) => {
+  debugger;
+  let errorMessage = "";
+  let resp;
+  try {
+    resp = await pepperi.addons.data.schemes.uuid("dd0a85ea-7ef0-4bc1-b14f-959e0372877a").name("base_surveys").get();
+  } catch (error) {
+    errorMessage = (error as any).message;
+  }
+  debugger;
+});
+
+router.get("/DI-22185", async (req, res, next) => {
+  const { describe, it, expect, run } = Tester("My test");
+  describe("addons.papi testing - cpi side", async () => {
+    it("addons.papi.uuid test", async () => {
+      let errorMessage = "";
+      const addonUUID = "fc5a5974-3b30-4430-8feb-7d5b9699bc9f";//Generic Resource addon UUID as hes the owner
+      let a;
+      debugger;
+      try {
+        a = await pepperi.addons.papi.uuid(addonUUID).resource('accounts').search({});//{ Where: "City='Rostock'" }
+      } catch (error) {
+        errorMessage = (error as any).message;
+      }
+      expect(errorMessage, `got error message:${errorMessage}`).to.equal("");
+      expect(a.Objects.length, "response array is empty").to.be.above(0);
+    });
+  });
+  const testResult = await run();
+  res.json(testResult);
+});
+
+
+router.get("/DI-22239", async (req, res, next) => {
+  const { describe, it, expect, run } = Tester("My test");
+  describe("addons.papi testing - cpi side", async () => {
+    it("addons.papi.uuid test", async () => {
+      let errorMessage = "";
+      const addonUUID = "fc5a5974-3b30-4430-8feb-7d5b9699bc9f";//Generic Resource addon UUID as hes the owner
+      let a;
+      debugger;
+      try {
+        a = await pepperi.addons.papi.uuid(addonUUID).resource('accounts').search({});//{ Where: "City='Rostock'" }
+      } catch (error) {
+        errorMessage = (error as any).message;
+      }
+      expect(errorMessage, `got error message:${errorMessage}`).to.equal("");
+      expect(a.Objects.length, "response array is empty").to.be.above(0);
+    });
+  });
+  const testResult = await run();
+  res.json(testResult);
+});
+
+// (event: import("./events").EventKey, data: any, context?: import("./events").IContext | undefined) => Promise<{
+//   data: any;
+// }>;
+
+
+
+router.get("/DI-20880", async (req, res, next) => {
+  const { describe, it, expect, run } = Tester("My test");
+  describe("addons.papi testing - cpi side", async () => {
+    it("addons.papi.uuid test", async () => {
+      debugger;
+      const a = await pepperi.events.emit(
+        'evgeny' as EventKey,
+        {
+          ObjectType: "Array123"
+        }
+      );
+      debugger;
+      console.log(a);
+    });
+  });
+  const testResult = await run();
+  res.json(testResult);
+});
+
+
+router.get("/DI-22441", async (req, res, next) => {
+  const { describe, it, expect, run } = Tester("My test");
+  describe("addons.papi testing - cpi side", async () => {
+    it("addons.papi.uuid test", async () => {
+      let errorMessage = "";
+      let resp;
+      try {
+        resp = await pepperi.resources.resource('MySurveys').search({});
+        debugger;
+      } catch (error) {
+        errorMessage = (error as any).message;
+        debugger;
+      }
+      console.log(errorMessage);
+      console.log(resp);
+    });
+  });
+  const testResult = await run();
+  res.json(testResult);
+});
+
+// 
+router.get("/evg1", async (req, res, next) => {
+  debugger;
+  const obj = await pepperi.DataObject.Get("TransactionLine", "88989e12-5971-4a6e-be7d-1583a399e1dd");
+  obj!.setFieldValue('TSAEventData', 123);
+  debugger;
+});
+
+router.get("/DI-22688", async (req, res, next) => {
+  debugger;
+  const x = await pepperi.events.emit('Bulx2' as EventKey,
+    {
+      ObjectType: "Sales Order"
+    }
+  );
+  console.log(x);
+  debugger;
+});
+
+router.get("/DI-22810", async (req, res, next) => {
+  debugger;
+  const user = await (await pepperi.environment.user()).email;
+  const user1 = await (await pepperi.environment.user()).externalID;
+  const user2 = await (await pepperi.environment.user()).internalID;
+  const user3 = await (await pepperi.environment.user()).externalID;
+  const user4 = await (await pepperi.environment.user()).firstName;
+  const user5 = await (await pepperi.environment.user()).lastName;
+  console.log(user);
+  console.log(user2);
+  console.log(user3);
+  console.log(user4);
+  console.log(user5);
+  debugger;
+});
+
+
+
+router.get("/DI-22037", async (req, res, next) => {
+  const { describe, it, expect, run } = Tester("My test");
+  describe("addons.papi testing - cpi side", async () => {
+    it("addons.papi.uuid test", async () => {
+      const catalogResponseGet = await pepperi.api.catalogs.get({ key: { UUID: "ed1cc3e0-d316-4246-a094-9337dfc8d942" }, fields: ["InternalID", "ExternalID"] });
+      expect(catalogResponseGet.object.InternalID).to.equal(79720);
+      expect(catalogResponseGet.object.ExternalID).to.equal("Default Catalog");
+      debugger;
+      let catalogResponseSearch;
+      let error = "";
+      try {
+        catalogResponseSearch = await pepperi.api.catalogs.search({ fields: ["InternalID", "ExternalID", "CreationDateTime"] });
+      } catch (e) {
+        error = (e as any).message;
+        debugger;
+      }
+      debugger;
+      expect(catalogResponseSearch.success).to.equal(true);
+      expect(catalogResponseSearch.page).to.equal(1);
+      expect(catalogResponseSearch.count).to.equal(1);
+      expect(catalogResponseSearch.objects.length).to.equal(1);
+      expect(catalogResponseSearch.objects[0].InternalID).to.equal(79720);
+      expect(catalogResponseSearch.objects[0].ExternalID).to.equal("Default Catalog");
+    });
+  });
+  const testResult = await run();
+  res.json(testResult);
+});
+
+
+router.get("/DI-22226", async (req, res, next) => {
+  const { describe, it, expect, run } = Tester("My test");
+  describe("addons.papi testing - cpi side", async () => {
+    it("addons.papi.uuid test", async () => {
+      let catalogResponseGet;
+      let error;
+      try {
+        debugger;
+        catalogResponseGet = await pepperi.resources.resource('account_users').search({});
+      } catch (e) {
+        error = (e as any).message;
+        debugger;
+      }
+      debugger;
+      console.log(catalogResponseGet);
+      // let catalogResponseSearch;
+      // let error = "";
+      // try {
+      //   catalogResponseSearch = await pepperi.api.catalogs.search({ fields: ["InternalID", "ExternalID", "CreationDateTime"] });
+      // } catch (e) {
+      //   error = (e as any).message;
+      //   debugger;
+      // }
+      // debugger;
+      // expect(catalogResponseSearch.success).to.equal(true);
+      // expect(catalogResponseSearch.page).to.equal(1);
+      // expect(catalogResponseSearch.count).to.equal(1);
+      // expect(catalogResponseSearch.objects.length).to.equal(1);
+      // expect(catalogResponseSearch.objects[0].InternalID).to.equal(79720);
+      // expect(catalogResponseSearch.objects[0].ExternalID).to.equal("Default Catalog");
+    });
+  });
+  const testResult = await run();
+  res.json(testResult);
+});
+
+
+router.get("/DI-22079", async (req, res, next) => {
+  const { describe, it, expect, run } = Tester("My test");
+  describe("addons.papi testing - cpi side", async () => {
+    it("addons.papi.uuid test", async () => {
+      let error = '';
+      let accResponseGet;
+      let accResponseSearch;
+      try {
+        accResponseGet = await pepperi.api.accounts.get({ key: { UUID: "c19ce981-1113-48d4-af66-259c6e74985e" }, fields: ["InternalID", "City", "Country"] });
+      } catch (e) {
+        error = (e as any).message;
+      }
+      expect(error).to.equal('');
+      expect(accResponseGet.success).to.equal(true);
+      expect(accResponseGet.object.InternalID).to.equal(24095345);
+      expect(accResponseGet.object.City).to.equal("New York");
+      expect(accResponseGet.object.Country).to.equal("USA");
+      error = '';
+      try {
+        accResponseSearch = await pepperi.api.accounts.search({ fields: ["InternalID", "City", "Country"] }) as any;
+      } catch (e) {
+        error = (e as any).message;
+      }
+      expect(accResponseSearch.success).to.equal(true);
+      expect(accResponseSearch.page).to.equal(1);
+      expect(accResponseSearch.count).to.equal(2);
+      expect(accResponseSearch.objects.length).to.equal(2);
+      for (let index = 0; index < accResponseSearch.objects.length; index++) {
+        const element = accResponseSearch.objects[index];
+        expect(element.InternalID).to.be.oneOf([24095356, 24095345]);
+        expect(element.Country).to.be.oneOf(["USA", "-"]);
+        expect(element.City).to.be.oneOf(["Raanana", "New York"]);
+      }
+    });
+  });
+  const testResult = await run();
+  res.json(testResult);
+});
+
+
+
+router.get("/pfs_cpi", async (req, res, next) => {
+  const { describe, it, expect, run } = Tester("My test");
+  describe("addons.pfs testing - cpi side", async () => {
+    const assetsUUID = "ad909780-0c23-401e-8e8e-f514cc4f6aa2";
+    const assetsSchemaName = "Assets";
+    it("positive test: addons.pfs.uuid.schema.find - get all Assets Files", async () => {
+      const pfsResponse = await pepperi.addons.pfs.uuid(assetsUUID).schema(assetsSchemaName).find({}) as any;
+      expect(pfsResponse.length).to.equal(3);
+      for (let index = 0; index < pfsResponse.length; index++) {
+        const element = pfsResponse[index];
+        expect(element).to.haveOwnProperty("CreationDateTime");
+        expect(element).to.haveOwnProperty("Description");
+        expect(element).to.haveOwnProperty("Folder");
+        expect(element).to.haveOwnProperty("Hidden");
+        expect(element.Hidden).to.equal(false);
+        expect(element).to.haveOwnProperty("Key");
+        expect(element.Key).to.be.oneOf(['folder123/', 'folder123/Switch_by_Sam_Perkins.png', 'images.png']);
+        expect(element).to.haveOwnProperty("MIME");
+        expect(element).to.haveOwnProperty("Name");
+        expect(element.Name).to.be.oneOf([element.Key, element.Key.substring(element.Key.indexOf('/') + 1)]);
+        expect(element).to.haveOwnProperty("Sync");
+        if (element.Name !== 'folder123/') {
+          expect(element).to.haveOwnProperty("UploadedBy");
+          expect(element.UploadedBy).to.be.oneOf(['dd7cb027-24e4-4099-a356-c91c5f4b0c62', '416f409d-a06e-4d13-9585-a1ad2d52c598']);
+        }
+        expect(element).to.haveOwnProperty("URL");
+      }
+    });
+    it("positive test: addons.pfs.uuid.schema.key.get - get Assets File by a key", async () => {
+      const pfsResponse = await pepperi.addons.pfs.uuid("ad909780-0c23-401e-8e8e-f514cc4f6aa2").schema('Assets').key("images.png").get();
+      expect(pfsResponse).to.haveOwnProperty("ModificationDateTime");
+      expect(pfsResponse).to.haveOwnProperty("FileVersion");
+      expect(pfsResponse).to.haveOwnProperty("Folder");
+      expect(pfsResponse.Folder).to.equal("/");
+      expect(pfsResponse.MIME).to.equal("image/png");
+      expect(pfsResponse).to.haveOwnProperty("CreationDateTime");
+      expect(pfsResponse).to.haveOwnProperty("Sync");
+      expect(pfsResponse.URL).to.include("pfs");
+      expect(pfsResponse.Hidden).to.equal(false);
+      expect(pfsResponse.Cache).to.equal(true);
+      expect(pfsResponse.FileSize).to.equal(17962);
+      expect(pfsResponse.UploadedBy).to.be.oneOf(['dd7cb027-24e4-4099-a356-c91c5f4b0c62', '416f409d-a06e-4d13-9585-a1ad2d52c598']);
+      expect(pfsResponse.Name).to.equal("images.png");
+      expect(pfsResponse.Key).to.equal("images.png");
+    });
+    it("positive test: addons.pfs.uuid.schema.find - get all Assets files under certain folder", async () => {
+      const pfsResponse = await pepperi.addons.pfs.uuid(assetsUUID).schema(assetsSchemaName).find({ folder: "folder123" });
+      expect(pfsResponse.length).to.equal(1);
+      const parsedResponse = pfsResponse[0];
+      expect(parsedResponse).to.haveOwnProperty("ModificationDateTime");
+      expect(parsedResponse).to.haveOwnProperty("FileVersion");
+      expect(parsedResponse).to.haveOwnProperty("Folder");
+      expect(parsedResponse.Folder).to.equal("folder123/");
+      expect(parsedResponse.MIME).to.equal("image/png");
+      expect(parsedResponse).to.haveOwnProperty("CreationDateTime");
+      expect(parsedResponse).to.haveOwnProperty("Sync");
+      expect(parsedResponse.URL).to.include("pfs");
+      expect(parsedResponse.Hidden).to.equal(false);
+      expect(parsedResponse.Cache).to.equal(true);
+      expect(parsedResponse.FileSize).to.equal(117004);
+      expect(parsedResponse.UploadedBy).to.be.oneOf(['dd7cb027-24e4-4099-a356-c91c5f4b0c62', '416f409d-a06e-4d13-9585-a1ad2d52c598']);
+      expect(parsedResponse.Name).to.equal("Switch_by_Sam_Perkins.png");
+      expect(parsedResponse.Key).to.equal("folder123/Switch_by_Sam_Perkins.png");
+    });
+  });
+  const testResult = await run();
+  res.json(testResult);
+});
+
+
+router.get("/DI-21785", async (req, res, next) => {
+  const { describe, it, expect, run } = Tester("My test");
+  describe("addons.papi testing - cpi side", async () => {
+    it("addons.papi.uuid test", async () => {
+      debugger;
+      const a = await pepperi.addons.pfs.uuid("ad909780-0c23-401e-8e8e-f514cc4f6aa2").schema('Assets').find({});
+      debugger;
+      console.log(a);
+    });
+  });
+  const testResult = await run();
+  res.json(testResult);
+});
+
+
+router.get("/DI-21877", async (req, res, next) => {
+  const addonUUID = "2b39d63e-0982-4ada-8cbb-737b03b9ee58";
+  debugger;
+  let errorMessage = "";
+  let resp;
+  try {
+    resp = await pepperi.addons.data.uuid(addonUUID).table("cpiAdalTest3").search({ Where: "CreationDateTime='2022-11-30T13:56:27.673Z'" });
+  } catch (error) {
+    errorMessage = (error as any).message;
+  }
+});
+
+router.get("/DI-22184", async (req, res, next) => {
+  debugger;
+  let errorMessage = "";
+  let resp;
+  try {
+    resp = await pepperi.addons.papi.uuid("accounts")
+  }
+  catch (error) {
+    errorMessage = (error as any).message;
+    debugger;
+  }
+  debugger;
+});
+
+router.get("/DI-21737", async (req, res, next) => {
+  const { describe, it, expect, run } = Tester("My test");
+  describe("addons.papi testing - cpi side", async () => {
+    it("addons.papi.uuid test", async () => {
+      debugger;
+      const a = await pepperi.addons.pfs.uuid("ad909780-0c23-401e-8e8e-f514cc4f6aa2").schema('Assets').key("images.png").get();
+      debugger;
+      console.log(a);
+    });
+  });
+  const testResult = await run();
+  res.json(testResult);
+});
+
+router.get("/DI-21784", async (req, res, next) => {
+  const { describe, it, expect, run } = Tester("My test");
+  describe("addons.papi testing - cpi side", async () => {
+    it("addons.papi.uuid test", async () => {
+      debugger;
+      const a = await pepperi.addons.pfs.uuid("ad909780-0c23-401e-8e8e-f514cc4f6aa2").schema('Assets').find({ folder: "folder123" });
+      debugger;
+      console.log(a);
+    });
+  });
+  const testResult = await run();
+  res.json(testResult);
+});
+
+router.get("/DI-22336", async (req, res, next) => {
+  //EVGENY
+  const options: any = {
+    Key: "Value",
+    Value: "1234"
+  };
+  let errorMessage = "";
+  let resp;
+  try {
+    resp = await pepperi.addons.data.uuid(addonUUID).table("test333").upsert(options);
+    debugger;
+  } catch (error) {
+    errorMessage = (error as any).message;
+    debugger;
+  }
+});
+
+
+router.get("/Cpi_Adal", async (req, res, next) => {
+  let GUID = "";
+  let randKey = "";
+  const addonUUID = "2b39d63e-0982-4ada-8cbb-737b03b9ee58";
+  const tableName = "cpiAdalTest3";
+  const { describe, it, expect, run } = Tester("My test");
+  describe("cpi adal tests", async () => {
+    it("addons.data.schemes - negative test: getting non existing scheme", async () => {
+      let errorMessage;
+      try {
+        await pepperi.addons.data.schemes.uuid(addonUUID).name("NOT EXISTING").get();
+      } catch (error) {
+        errorMessage = (error as any).message;
+      }
+      expect(errorMessage).to.equal(`Could not find object with key: '${addonUUID}_NOT EXISTING' on table: 'schemes'`);
+    });
+    it("pepperi.addons.schemes.get - positive test: getting all sync: true schemes", async () => {
+      let errorMessage = "";
+      let resp;
+      try {
+        resp = await pepperi.addons.data.schemes.get({});
+      }
+      catch (error) {
+        errorMessage = (error as any).message;
+      }
+      expect(errorMessage).to.equal("");
+      expect(resp.length).to.above(7);
+      for (let index = 0; index < resp.length; index++) {
+        const scheme = resp[index];
+        expect(scheme.Hidden).to.equal(false);
+        expect(scheme.Type).to.be.oneOf(["papi", "meta_data", "data", "abstract", "contained"]);
+        expect(scheme.SyncData.Sync).to.equal(true);
+      }
+    });
+    it("addons.data.schemes - positive test: getting existing scheme", async () => {
+      let errorMessage = "";
+      let resp;
+      try {
+        resp = await pepperi.addons.data.schemes.uuid(addonUUID).name(tableName).get();
+      } catch (error) {
+        errorMessage = (error as any).message;
+      }
+      expect(errorMessage).to.equal("");
+      expect(resp.GenericResource).to.equal(false);
+      expect(resp.AddonUUID).to.equal(addonUUID);
+      expect(resp.Hidden).to.equal(false);
+      expect(resp.Key).to.equal(`${addonUUID}_${tableName}`);
+      expect(resp.Name).to.equal(tableName);
+      expect(resp.SyncData.Sync).to.equal(true);
+      expect(resp.Fields.Value.Type).to.equal("string");
+    });
+    it("addons.data.uuid.table.key - negative test: getting not existing key", async () => {
+      // debugger;
+      let errorMessage = "";
+      try {
+        await pepperi.addons.data.uuid(addonUUID).table(tableName).key("NON").get();
+      } catch (error) {
+        errorMessage = (error as any).message;
+      }
+      expect(errorMessage).to.include(`Error thrown: ClientApiError: Could not find object with key: 'NON' on table: '${tableName}'`);
+    });
+    it("addons.data.uuid.table.key - positive test: getting existing key: full object", async () => {
+      let errorMessage = "";
+      let resp;
+      try {
+        resp = await pepperi.addons.data.uuid(addonUUID).table(tableName).key("test1").get();
+      } catch (error) {
+        errorMessage = (error as any).message;
+      }
+      expect(errorMessage).to.equal("");
+      expect(resp.Hidden).to.equal(false);
+      expect(resp.Key).to.equal("test1");
+      expect(resp.Value).to.equal("abc1");
+    });
+    it("addons.data.uuid.table.search - positive test: testing the search is case sensitive", async () => {
+      let errorMessage = "";
+      let respShouldHaveData;
+      let respNoData;
+      try {
+        respShouldHaveData = await pepperi.addons.data.uuid(addonUUID).table("Di22006").search({});
+        respNoData = await pepperi.addons.data.uuid(addonUUID).table("di22006").search({});
+      } catch (error) {
+        errorMessage = (error as any).message;
+
+      }
+      expect(errorMessage).to.equal("");
+      expect(respShouldHaveData.Objects[0].ValueA).to.equal("evgey");
+      expect(respShouldHaveData.Objects[0].Hidden).to.equal(false);
+      expect(respShouldHaveData.Objects[0]).to.haveOwnProperty("CreationDateTime");
+      expect(respShouldHaveData.Objects[0]).to.haveOwnProperty("ModificationDateTime");
+      expect(respShouldHaveData.Objects[0]).to.haveOwnProperty("Key");
+      expect(respNoData.Objects).to.deep.equal([]);
+    });
+    it("addons.data.uuid.table.search - positive test: using 'search' to 'sort_by' key", async () => {
+      const options: AddonsDataSearchParams = {
+        SortBy: "Key"
+      };
+      let errorMessage = "";
+      let resp;
+      try {
+        resp = await pepperi.addons.data.uuid(addonUUID).table(tableName).search(options);
+      } catch (error) {
+        errorMessage = (error as any).message;
+      }
+      const keys: string[] = [];
+      for (let index = 0; index < resp.Objects.length; index++) {
+        const element = resp.Objects[index];
+        keys.push(element.Key);
+      }
+      expect(errorMessage).to.equal("");
+      expect(keys).to.be.ordered;
+    });
+    it("addons.data.uuid.table.search - positive test: using 'search' to set which 'Fields' are returning partial object(key - value - hidden)", async () => {
+      const options: AddonsDataSearchParams = {
+        Fields: ["Key", "Value", "Hidden"]
+      };
+      let errorMessage = "";
+      let resp;
+      try {
+        resp = await pepperi.addons.data.uuid(addonUUID).table(tableName).search(options);
+      } catch (error) {
+        errorMessage = (error as any).message;
+      }
+      expect(errorMessage).to.equal("");
+      const data = resp.Objects;
+      for (let index = 0; index < data.length; index++) {
+        const element = data[index];
+        if (element.Hidden == false)
+          expect(element).to.include.all.keys("Key", "Value", "Hidden");
+      }
+    });
+    it("addons.data.uuid.table.search - negative test: using broken search options and validating the error is good", async () => {
+      const options = {
+        Where: "Key is Like 'test%25'"
+      };
+      let errorMessage = "";
+      let resp;
+      try {
+        resp = await pepperi.addons.data.uuid(addonUUID).table(tableName).search(options);
+      } catch (error) {
+        errorMessage = (error as any).message;
+      }
+      expect(errorMessage).to.include("Could not parse where clause 'Key is Like 'test%25'' on scheme 'cpiAdalTest3");
+    });
+    it("addons.data.uuid.table.upsert - positive test: using 'upsert' to change exsisting object (using exsisting key)", async () => {
+      //evgeny hayom
+      const options: any = {
+        Key: "test3",
+        Value: "abc4"
+      };
+      let errorMessage = "";
+      let resp;
+      try {
+        resp = await pepperi.addons.data.uuid(addonUUID).table(tableName).upsert(options);
+      } catch (error) {
+        errorMessage = (error as any).message;
+      }
+      expect(errorMessage).to.equal("");
+      expect(resp.Key).to.equal("test3");
+      expect(resp.Value).to.equal("abc4");
+      const optionsToSend: any = {
+        Key: "test3",
+        Value: "abc3"
+      };
+      try {
+        resp = await pepperi.addons.data.uuid(addonUUID).table(tableName).upsert(optionsToSend);
+      } catch (error) {
+        errorMessage = (error as any).message;
+      }
+      expect(errorMessage).to.equal("");
+      expect(resp.Key).to.equal("test3");
+      expect(resp.Value).to.equal("abc3");
+    });
+    it("addons.data.uuid.table.upsert - positive test: using 'upsert' w.o. a key - should create new object with GUID as key", async () => {
+      const options: any = {
+        Value: "abc_GUID"
+      };
+      let errorMessage = "";
+      let resp;
+      try {
+        resp = await pepperi.addons.data.uuid(addonUUID).table(tableName).upsert(options);
+      } catch (error) {
+        errorMessage = (error as any).message;
+      }
+      expect(errorMessage).to.equal("");
+      expect(resp.Value).to.equal("abc_GUID");
+      GUID = resp.Key;
+    });
+    it("addons.data.uuid.table.upsert - positive test: using 'upsert' with non exsisting random key - should create new object with this random value as key", async () => {
+      randKey = `rand_${Math.floor(Math.random() * 10)}`;
+      const options: any = {
+        Key: randKey,
+        Value: "abc_Rand"
+      };
+      let errorMessage = "";
+      let resp;
+      try {
+        resp = await pepperi.addons.data.uuid(addonUUID).table(tableName).upsert(options);
+      } catch (error) {
+        errorMessage = (error as any).message;
+      }
+      expect(errorMessage).to.equal("");
+      expect(resp.Key).to.equal(randKey);
+      expect(resp.Value).to.equal("abc_Rand");
+    });
+    it("addons.data.uuid.table.key - positive test: getting upserted keys", async () => {
+      let errorMessage = "";
+      let resp;
+      try {
+        resp = await pepperi.addons.data.uuid(addonUUID).table(tableName).key(GUID).get();
+      } catch (error) {
+        errorMessage = (error as any).message;
+        // debugger;
+      }
+      // debugger;
+      expect(errorMessage).to.equal("");
+      expect(resp.Value).to.equal("abc_GUID");
+      try {
+        resp = await pepperi.addons.data.uuid(addonUUID).table(tableName).key("test3").get();
+      } catch (error) {
+        errorMessage = (error as any).message;
+      }
+      expect(errorMessage).to.equal("");
+      expect(resp.Value).to.equal("abc3");
+    });
+    it("addons.data.uuid.table.search - positive test: filtering get using where clause on Keys", async () => {
+      let errorMessage = "";
+      let resp;
+      try {
+        resp = await pepperi.addons.data.uuid(addonUUID).table(tableName).search({ Where: "Key Like 'test%'" });
+      } catch (error) {
+        errorMessage = (error as any).message;
+      }
+      expect(errorMessage).to.equal("");
+      const arrayOfReturnals = resp.Objects;
+      expect(arrayOfReturnals.length).to.equal(4);
+      for (let index = 0; index < arrayOfReturnals.length; index++) {
+        const dataReturned = arrayOfReturnals[index];
+        expect(dataReturned.Key).to.equal(`test${index + 1}`);
+        expect(dataReturned.Value).to.equal(`abc${index + 1}`);
+      }
+    });
+    it("addons.data.uuid.table.search - positive test: filtering get using where clause on CreationDateTime", async () => {
+      let errorMessage = "";
+      let resp;
+      try {
+        resp = await pepperi.addons.data.uuid(addonUUID).table(tableName).search({ Where: "CreationDateTime > '2023-06-18:00:00:00.000Z' AND Key Like 'test%'" });
+      } catch (error) {
+        errorMessage = (error as any).message;
+      }
+      expect(errorMessage).to.equal("");
+      const arrayOfReturnals = resp.Objects;
+      expect(arrayOfReturnals.length).to.equal(4);
+      for (let index = 0; index < arrayOfReturnals.length; index++) {
+        const dataReturned = arrayOfReturnals[index];
+        expect(dataReturned.Key).to.equal(`test${index + 1}`);
+        expect(dataReturned.Value).to.equal(`abc${index + 1}`);
+      }
+    });
+    it("addons.data.uuid.table.search - positive test: using keyList inside where to filter the data", async () => {
+      let errorMessage = "";
+      let resp;
+      try {
+        resp = await pepperi.addons.data.uuid(addonUUID).table(tableName).search({ KeyList: ["test1", "test2"] });
+      } catch (error) {
+        errorMessage = (error as any).message;
+      }
+      expect(errorMessage).to.equal("");
+      const arrayOfReturnals = resp.Objects;
+      expect(arrayOfReturnals.length).to.equal(2);
+      for (let index = 0; index < arrayOfReturnals.length; index++) {
+        const dataReturned = arrayOfReturnals[index];
+        expect(dataReturned.Key).to.equal(`test${index + 1}`);
+        expect(dataReturned.Value).to.equal(`abc${index + 1}`);
+      }
+    });
+    it("addons.data.uuid.table.search - DI-22861 Verification: KeyList throws exception when sending key that does not exist", async () => {
+      let errorMessage = "";
+      let resp;
+      try {
+        resp = await pepperi.addons.data.uuid(addonUUID).table(tableName).search({ KeyList: ["nonExsistingKEY123"] });
+      } catch (error) {
+        errorMessage = (error as any).message;
+      }
+      expect(errorMessage).to.equal("");
+      expect(resp.Objects.length).to.equal(0);
+    });
+    it("addons.data.uuid.table.search - positive test: filtering get using where clause on Hidden to get all Hidden data counted with page size = -1", async () => {
+      let errorMessage = "";
+      let resp;
+      try {
+        resp = await pepperi.addons.data.uuid(addonUUID).table(tableName).search({ Where: "Hidden=true", "IncludeCount": true, "PageSize": -1 });
+      } catch (error) {
+        errorMessage = (error as any).message;
+      }
+      expect(errorMessage).to.equal("");
+      const arrayOfReturnals = resp.Objects;
+      //TODO: include count wrong number returned 
+      expect(resp.Count).to.equal(arrayOfReturnals.length);
+      for (let index = 0; index < arrayOfReturnals.length; index++) {
+        const dataReturned = arrayOfReturnals[index];
+        expect(dataReturned.Hidden).to.equal(true);
+      }
+    });
+    it("addons.data.uuid.table.upsert - positive test: cleanse upserted data and test indeed hidden", async () => {
+      const options: any = {
+        Key: GUID,
+        Hidden: true
+      };
+      let errorMessage = "";
+      let resp;
+      try {
+        resp = await pepperi.addons.data.uuid(addonUUID).table(tableName).upsert(options);
+      } catch (error) {
+        errorMessage = (error as any).message;
+        // debugger;
+      }
+      // debugger;
+      expect(errorMessage).to.equal("");
+      expect(resp.Key).to.equal(GUID);
+      expect(resp.Hidden).to.equal(true);
+      const options2: any = {
+        Key: randKey,
+        Hidden: true
+      };
+      try {
+        resp = await pepperi.addons.data.uuid(addonUUID).table(tableName).upsert(options2);
+      } catch (error) {
+        errorMessage = (error as any).message;
+      }
+      expect(errorMessage).to.equal("");
+      expect(resp.Key).to.equal(randKey);
+      expect(resp.Hidden).to.equal(true);
+    });
+    it("pepperi.resources.resource('resources') - positive test: getting ALL generic resurce by unfiltered search", async () => {
+      let errorMessage = "";
+      let resp;
+      try {
+        resp = await pepperi.resources.resource('resources').search({});
+      } catch (error) {
+        errorMessage = (error as any).message;
+      }
+      expect(errorMessage).to.equal("");
+      expect(resp.Objects.length).to.be.above(3);
+      for (let index = 0; index < resp.Objects.length; index++) {
+        const genericResource = resp.Objects[index];
+        expect(genericResource.GenericResource).to.equal(true);
+        expect(genericResource.Hidden).to.equal(false);
+      }
+    });
+    it("pepperi.resources.resource('resources') - positive test: getting generic resurce scheme by key", async () => {
+      let errorMessage = "";
+      let resp;
+      try {
+        resp = await pepperi.resources.resource('resources').key("genericresourcetest").get();
+      } catch (error) {
+        errorMessage = (error as any).message;
+      }
+      expect(errorMessage).to.equal("");
+      expect(resp.AddonUUID).to.equal(addonUUID);
+      expect(resp.GenericResource).to.equal(true);
+      expect(resp.Hidden).to.equal(false);
+      expect(resp.Key).to.equal(`${addonUUID}_genericresourcetest`);
+      expect(resp.Name).to.equal(`genericresourcetest`);
+      expect(resp.SyncData.Sync).to.equal(true);
+      expect(resp.Type).to.equal("data");
+      expect(resp.Fields.Value.Type).to.equal("string");
+    });
+    it("pepperi.resources.resource('resources') - positive test: getting UDC scheme by key", async () => {
+      let errorMessage = "";
+      let resp;
+      try {
+        resp = await pepperi.resources.resource('resources').key("TestUDC").get();
+      } catch (error) {
+        errorMessage = (error as any).message;
+      }
+      // debugger;
+      expect(errorMessage).to.equal("");
+      expect(resp.AddonUUID).to.equal('122c0e9d-c240-4865-b446-f37ece866c22');
+      expect(resp.GenericResource).to.equal(true);
+      expect(resp.Hidden).to.equal(false);
+      expect(resp.Key).to.equal(`122c0e9d-c240-4865-b446-f37ece866c22_TestUDC`);
+      expect(resp.Name).to.equal(`TestUDC`);
+      expect(resp.SyncData.Sync).to.equal(true);
+      expect(resp.Type).to.equal("data");
+      expect(resp.Fields.a.Type).to.equal("String");
+      expect(resp.Fields.a.Mandatory).to.equal(false);
+      expect(resp.UserDefined).to.equal(true);
+      expect(resp.DocumentKey.Delimiter).to.equal("@");
+      expect(resp.DocumentKey.Type).to.equal("AutoGenerate");
+      expect(resp.DocumentKey.Fields).to.deep.equal([]);
+    });
+    it("pepperi.resources.resource('resources') - positive test: getting UDC by calling unique and using the name", async () => {
+      let errorMessage = "";
+      let resp;
+      try {
+        resp = await pepperi.resources.resource('resources').unique("Name").get("TestUDC");
+      } catch (error) {
+        errorMessage = (error as any).message;
+      }
+      expect(errorMessage).to.equal("");
+      expect(resp.AddonUUID).to.equal('122c0e9d-c240-4865-b446-f37ece866c22');
+      expect(resp.GenericResource).to.equal(true);
+      expect(resp.Hidden).to.equal(false);
+      expect(resp.Key).to.equal(`122c0e9d-c240-4865-b446-f37ece866c22_TestUDC`);
+      expect(resp.Name).to.equal(`TestUDC`);
+      expect(resp.SyncData.Sync).to.equal(true);
+      expect(resp.Type).to.equal("data");
+      expect(resp.Fields.a.Type).to.equal("String");
+      expect(resp.Fields.a.Mandatory).to.equal(false);
+      expect(resp.UserDefined).to.equal(true);
+      expect(resp.DocumentKey.Delimiter).to.equal("@");
+      expect(resp.DocumentKey.Type).to.equal("AutoGenerate");
+      expect(resp.DocumentKey.Fields).to.deep.equal([]);
+    });
+    it("pepperi.resources.resource('resources').search - positive test: getting UDC by using name search", async () => {
+      let errorMessage = "";
+      let resp;
+      try {
+        resp = await pepperi.resources.resource('resources').search({ Where: "Name=TestUDC", IncludeCount: true });
+      } catch (error) {
+        errorMessage = (error as any).message;
+      }
+      expect(errorMessage).to.equal("");
+      expect(resp.Count).to.equal(resp.Objects.length);
+      const gottenData = resp.Objects[0];
+      expect(gottenData.AddonUUID).to.equal('122c0e9d-c240-4865-b446-f37ece866c22');
+      expect(gottenData.GenericResource).to.equal(true);
+      expect(gottenData.Hidden).to.equal(false);
+      expect(gottenData.Key).to.equal(`122c0e9d-c240-4865-b446-f37ece866c22_TestUDC`);
+      expect(gottenData.Name).to.equal(`TestUDC`);
+      expect(gottenData.SyncData.Sync).to.equal(true);
+      expect(gottenData.Type).to.equal("data");
+      expect(gottenData.Fields.a.Type).to.equal("String");
+      expect(gottenData.Fields.a.Mandatory).to.equal(false);
+      expect(gottenData.UserDefined).to.equal(true);
+      expect(gottenData.DocumentKey.Delimiter).to.equal("@");
+      expect(gottenData.DocumentKey.Type).to.equal("AutoGenerate");
+      expect(gottenData.DocumentKey.Fields).to.deep.equal([]);
+    });
+    it("pepperi.resources.resource('resources') - negative test: getting UDC by calling unique and using random UUID testing error message", async () => {
+      let errorMessage = "";
+      let resp;
+      const uuidRand = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
+      try {
+        resp = await pepperi.resources.resource('resources').key(uuidRand).get();
+      } catch (error) {
+        errorMessage = (error as any).message;
+      }
+      expect(resp.fault.faultstring).to.include("Failed due to exception: xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx scheme does not exist");
+    });
+    it("pepperi.resources.resource('UDC').get - positive test: getting all fields - no filter, validating data is correct", async () => {
+      let errorMessage = "";
+      let resp;
+      try {
+        resp = await pepperi.resources.resource('TestUDC').get({});
+      } catch (error) {
+        errorMessage = (error as any).message;
+      }
+      expect(errorMessage).to.equal("");
+      for (let index = 0; index < resp.length; index++) {
+        const udcField = resp[index];
+        if (udcField.Hidden === false) {
+          expect(udcField).to.haveOwnProperty("CreationDateTime");
+          expect(udcField).to.haveOwnProperty("ModificationDateTime");
+          expect(udcField).to.haveOwnProperty("Key");
+          expect(udcField.Key.length).to.equal(36);
+          expect(udcField).to.haveOwnProperty("a");
+          expect(udcField.a).to.include("test_udc_field");
+        } else {
+          expect(udcField).to.haveOwnProperty("Key");
+          expect(udcField.Key.length).to.equal(36);
+        }
+      }
+    });
+    it("pepperi.resources.resource('UDC').search - positive test: using UDC as the 'proxy resource': getting all fields (no filter), validating data is correct", async () => {
+      let errorMessage = "";
+      let resp;
+      try {
+        resp = await pepperi.resources.resource('TestUDC').search({});
+      } catch (error) {
+        errorMessage = (error as any).message;
+      }
+      expect(errorMessage).to.equal("");
+      for (let index = 0; index < resp.length; index++) {
+        const udcField = resp[index];
+        if (udcField.Hidden === false) {
+          expect(udcField).to.haveOwnProperty("CreationDateTime");
+          expect(udcField).to.haveOwnProperty("ModificationDateTime");
+          expect(udcField).to.haveOwnProperty("Key");
+          expect(udcField.Key.length).to.equal(36);
+          expect(udcField).to.haveOwnProperty("a");
+          expect(udcField.a).to.include("test_udc_field");
+        }
+        else {
+          expect(udcField).to.haveOwnProperty("Key");
+          expect(udcField.Key.length).to.equal(36);
+        }
+      }
+    });
+    it("pepperi.resources.resource('UDC').search - positive test: using UDC as the 'proxy resource': using 'where' to filter collection and getiting a list of certain fields by name", async () => {
+      let errorMessage = "";
+      let resp;
+      try {
+        resp = await pepperi.resources.resource('TestUDC').search({ Where: "a like '%evgeny'" });
+      } catch (error) {
+        errorMessage = (error as any).message;
+      }
+      expect(errorMessage).to.equal("");
+      const gottenData = resp.Objects[0];
+      expect(gottenData).to.haveOwnProperty("CreationDateTime");
+      expect(gottenData).to.haveOwnProperty("ModificationDateTime");
+      expect(gottenData).to.haveOwnProperty("Key");
+      expect(gottenData.Key).to.be.oneOf(["3e67c8af-34cb-4c7b-a238-3486a2f4bcad", "d0828e5a-cb21-424a-b41a-4538c5139cc1", "69de7517-20d4-40d1-8c6c-4e78fde42305", "d819f405-4544-444e-8a91-e999c3c5def4"]);
+      expect(gottenData).to.haveOwnProperty("a");
+      expect(gottenData.a).to.equal("test_udc_field_evgeny");
+    });
+    it("pepperi.resources.resource('UDC').search - positive test: using UDC as the 'proxy resource': using 'IncludeCount' - testing the number is correct", async () => {
+      let errorMessage = "";
+      let resp;
+      try {
+        resp = await pepperi.resources.resource('TestUDC').search({ IncludeCount: true });
+      } catch (error) {
+        errorMessage = (error as any).message;
+      }
+      expect(errorMessage).to.equal("");
+      expect(resp.Objects.length).to.equal(resp.Count);
+      const gottenData = resp.Objects[0];
+      expect(gottenData).to.haveOwnProperty("CreationDateTime");
+      expect(gottenData).to.haveOwnProperty("ModificationDateTime");
+      expect(gottenData).to.haveOwnProperty("Key");
+      expect(gottenData).to.haveOwnProperty("a");
+    });
+    it("pepperi.resources.resource('UDC').post - positive test: using UDC as the 'proxy resource': posting a field and validating response", async () => {
+      let errorMessage = "";
+      let resp;
+      try {
+        resp = await pepperi.resources.resource('TestUDC').post({ a: "test_udc_field_from_CPI" });
+      } catch (error) {
+        errorMessage = (error as any).message;
+      }
+      expect(errorMessage).to.equal("");
+      expect(resp).to.haveOwnProperty("Key");
+      expect(resp.Key.length).to.equal(36);
+      randKey = resp.Key;
+      expect(resp).to.haveOwnProperty("a");
+      expect(resp.a).to.equal("test_udc_field_from_CPI");
+    });
+    it("pepperi.resources.resource('UDC').post - positive test: posting 'hidden=true' to hide created field on collection", async () => {
+      let errorMessage = "";
+      let resp;
+      try {
+        resp = await pepperi.resources.resource('TestUDC').post({ Key: randKey, Hidden: true });
+      } catch (error) {
+        errorMessage = (error as any).message;
+      }
+      expect(errorMessage).to.equal("");
+      expect(resp).to.haveOwnProperty("Key");
+      expect(resp.Key.length).to.equal(36);
+      expect(resp.Key).to.equal(randKey);
+      expect(resp.Hidden).to.equal(true);
+    });
+    it("pepperi.resources.resource('UDC').post - positive test: getting all fields no filter to see whether the field is indeed deleted", async () => {
+      let errorMessage = "";
+      let resp;
+      try {
+        resp = await pepperi.resources.resource('TestUDC').get({});
+      } catch (error) {
+        errorMessage = (error as any).message;
+      }
+      expect(errorMessage).to.equal("");
+      for (let index = 0; index < resp.length; index++) {
+        const udcField = resp[index];
+        if (udcField.Hidden === false) {
+          expect(udcField.a).to.not.equal("test_udc_field_from_CPI");
+        }
+      }
+    });
+    it("pepperi.resources.resource('UDC').post - negative test: trying to post to scheme only collection", async () => {
+      let errorMessage = "";
+      let resp;
+      try {
+        resp = await pepperi.resources.resource('SchemeOnlyUDC').post({ a: "abc" });
+      } catch (error) {
+        errorMessage = (error as any).message;
+      }
+      expect(errorMessage).to.include("SchemeOnlyUDC not found");
+    });
+    it("pepperi.resources.resource('UDC').post - positive test: trying to GET a scheme only collection", async () => {
+      let errorMessage = "";
+      let resp;
+      try {
+        resp = await pepperi.addons.data.schemes.uuid('122c0e9d-c240-4865-b446-f37ece866c22').name('SchemeOnlyUDC').get();
+      } catch (error) {
+        errorMessage = (error as any).message;
+      }
+      expect(errorMessage).to.equal("");
+      expect(resp.GenericResource).to.equal(true);
+      expect(resp.AddonUUID).to.equal("122c0e9d-c240-4865-b446-f37ece866c22");
+      expect(resp.Hidden).to.equal(false);
+      expect(resp.Name).to.equal('SchemeOnlyUDC');
+      expect(resp.SyncData.Sync).to.equal(true);
+      expect(resp.Fields.a.Type).to.equal("String");
+    });
+    it("pepperi.resources.resource('resources').search - positive test: using UDC as the 'proxy resource': trying to GET online only scheme", async () => {
+      let errorMessage = "";
+      let resp;
+      try {
+        resp = await pepperi.resources.resource('resources').search({ Where: "Name=OnlineUDC" });
+      } catch (error) {
+        errorMessage = (error as any).message;
+      }
+      expect(errorMessage).to.equal("");
+      const recivedCollection = resp;
+      expect(recivedCollection.Objects).to.deep.equal([]);
+    });
+  });
+  const testResult = await run();
+  res.json(testResult);
+});
+
+router.post("/zozop", async (req, res, next) => {
+  res.json({ requestBody: req.body });
+});
+
 //==========================TransactionScope tests===================================
 //Leave this test here,it takes gloabl variables that gets valued on the Load function
 //test for the TrnScope functions and interceptors - debug here and not on server side - make sure the test trigger is set to true inside load function
 router.get("/TransactionScope", async (req, res, next) => {
+  debugger;
   console.log(
     "TransactionScopeTester:: Started TransactionScope automation test"
   );
@@ -2230,24 +3435,24 @@ router.get("/runScript", async (req, res, next) => {
   console.log("Inside runScript endpoint on automation addon");
   const scriptKey = req.body.Key;
   const scriptData = req.body.Data;
-  
+
   const scriptRun = await runScript(scriptKey, scriptData);
   res.json(scriptRun);
 });
 //=========================get Synced data from udc - if the data is here the sync test should be good==========================================
 //Sync endpoint to GET specific document from UDC
-router.use("/getDataFromSync", async (req,res,next) => {
-const tableName = req.body.tableName;
-const key = req.body.Key;
-let filterObj = {
-  table: tableName,
-  key: key
-} as UDCGetParams;
-const response = await pepperi.api.userDefinedCollections.get(filterObj);
-res.json(response);
+router.use("/getDataFromSync", async (req, res, next) => {
+  const tableName = req.body.tableName;
+  const key = req.body.Key;
+  let filterObj = {
+    table: tableName,
+    key: key
+  } as UDCGetParams;
+  const response = await pepperi.api.userDefinedCollections.get(filterObj);
+  res.json(response);
 });
 //Sync endpoint to GetList with indexed field
-router.use("/getListFromSync" ,async(req,res,next) => {
+router.use("/getListFromSync", async (req, res, next) => {
   const tableName = req.body.tableName;
   const index = req.body.Index;
   let filterObj = {
@@ -2258,23 +3463,23 @@ router.use("/getListFromSync" ,async(req,res,next) => {
   res.json(response);
 });
 //Sync endpoint to GET data from adal after sync
-router.use("/getDataFromADAL", async(req,res,next)=> {
- const tableName = req.body.tableName;
- const key = req.body.Key;
+router.use("/getDataFromADAL", async (req, res, next) => {
+  const tableName = req.body.tableName;
+  const key = req.body.Key;
 
- const adalGet = await pepperi.api.adal.get({
-  addon: addonUUID,
-  key: key,
-  table: tableName
- });
+  const adalGet = await pepperi.api.adal.get({
+    addon: addonUUID,
+    key: key,
+    table: tableName
+  });
 
- res.json(adalGet);
+  res.json(adalGet);
 });
 //Sync endpoint to GET list data from ADAL
-router.use("/getListFromADAL",async(req,res,next)=> {
+router.use("/getListFromADAL", async (req, res, next) => {
   const tableName = req.body.tableName;
 
-  const list = await pepperi.api.adal.getList({table: tableName,addon: addonUUID});
+  const list = await pepperi.api.adal.getList({ table: tableName, addon: addonUUID });
 
   res.json(list);
 });

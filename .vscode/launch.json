@@ -45,14 +45,14 @@
             "port": 9222,
             "address": "localhost",
             "preLaunchTask": {
-            "label": "Build cpi side & publish for debug",
-            "type": "npm",
-            "script": "publish-cpi-side-debug",
-            "group": "build",
-            "problemMatcher": []
+                "label": "Build cpi side & publish for debug",
+                "type": "npm",
+                "script": "publish-cpi-side-debug",
+                "group": "build",
+                "problemMatcher": []
             },
             
-       "name": "Launch CPINode debugger Server",
+            "name": "Launch CPINode debugger Server",
        }
     ]
 }

@@ -16,7 +16,7 @@
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
-		"@pepperi-addons/scripts": "^2.0.4"
-	},
-	"devDependencies": {}
+		"@pepperi-addons/cpi-node": "^1.3.3",
+		"@pepperi-addons/scripts": "^2.0.12"
+	}
 }

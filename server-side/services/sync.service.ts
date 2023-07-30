@@ -131,9 +131,10 @@ class SyncService {
   }
 
   async postUDCScheme(obj: Collection) {
-    const res = await this.papiClient.userDefinedCollections.schemes.upsert(
-      obj
-    );
+    let res;
+    // = await this.papiClient.userDefinedCollections.schemes.upsert(
+    //   obj
+    // );
     return res;
   }
 
@@ -237,7 +238,7 @@ class SyncService {
     key: string
   ) {
     let body = { Key: key, tableName: tableName };
-    let URL = `${webAPIBaseURL}/Service1.svc/v1/Addon/Api/2b39d63e-0982-4ada-8cbb-737b03b9ee58/addon-cpi/getDataFromSync`;
+    let URL = `${webAPIBaseURL}/Service1.svc/v1/Addons/Api/2b39d63e-0982-4ada-8cbb-737b03b9ee58/addon-cpi/getDataFromSync`;
     const res = await (
       await fetch(URL, {
         method: "POST",
@@ -260,7 +261,7 @@ class SyncService {
     index: string
   ) {
     let body = { Index: index, tableName: tableName };
-    let URL = `${webAPIBaseURL}/Service1.svc/v1/Addon/Api/2b39d63e-0982-4ada-8cbb-737b03b9ee58/addon-cpi/getListFromSync`;
+    let URL = `${webAPIBaseURL}/Service1.svc/v1/Addons/Api/2b39d63e-0982-4ada-8cbb-737b03b9ee58/addon-cpi/getListFromSync`;
     const res = await (
       await fetch(URL, {
         method: "POST",
@@ -283,7 +284,7 @@ class SyncService {
     key: string
   ) {
     let body = { Key: key, tableName: tableName };
-    let URL = `${webAPIBaseURL}/Service1.svc/v1/Addon/Api/2b39d63e-0982-4ada-8cbb-737b03b9ee58/addon-cpi/getDataFromADAL`;
+    let URL = `${webAPIBaseURL}/Service1.svc/v1/Addons/Api/2b39d63e-0982-4ada-8cbb-737b03b9ee58/addon-cpi/getDataFromADAL`;
     const res = await (
       await fetch(URL, {
         method: "POST",
@@ -305,7 +306,7 @@ class SyncService {
     tableName: string
   ) {
     let body = { tableName: tableName };
-    let URL = `${webAPIBaseURL}/Service1.svc/v1/Addon/Api/2b39d63e-0982-4ada-8cbb-737b03b9ee58/addon-cpi/getListFromADAL`;
+    let URL = `${webAPIBaseURL}/Service1.svc/v1/Addons/Api/2b39d63e-0982-4ada-8cbb-737b03b9ee58/addon-cpi/getListFromADAL`;
     const res = await (
       await fetch(URL, {
         method: "POST",

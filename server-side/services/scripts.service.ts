@@ -42,7 +42,7 @@ class ScriptService {
     Data: Object
   ) {
     //need fetch that will be replaced by papi.post once the url's will stabilize
-    let URL = `${webAPIBaseURL}/Service1.svc/v1/Addon/Api/9f3b727c-e88c-4311-8ec4-3857bc8621f3/addon-cpi/${scriptKey}/run`;
+    let URL = `${webAPIBaseURL}/Service1.svc/v1/Addons/Api/9f3b727c-e88c-4311-8ec4-3857bc8621f3/addon-cpi/${scriptKey}/run`;
 
     const scriptResults = await (
       await fetch(URL, {
@@ -64,7 +64,7 @@ class ScriptService {
     scriptKey: string,
     Data: Object
   ) {
-    let URL = `${webAPIBaseURL}/Service1.svc/v1/Addon/Api/2b39d63e-0982-4ada-8cbb-737b03b9ee58/addon-cpi/runScript`;
+    let URL = `${webAPIBaseURL}/Service1.svc/v1/Addons/Api/2b39d63e-0982-4ada-8cbb-737b03b9ee58/addon-cpi/runScript`;
     let body = {
       Key: scriptKey,
       Data: Data

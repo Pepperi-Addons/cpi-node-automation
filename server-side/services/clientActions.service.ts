@@ -208,6 +208,9 @@ class ClientActionsService {
       case "Navigation":
         action = new ClientActionNavigateTest(Data, actionType);
         break;
+      case "Finish":
+        action = new ClientActionNavigateTest(Data, actionType);
+        break;
       default:
         break;
     }

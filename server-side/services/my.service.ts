@@ -260,7 +260,7 @@ class MyService {
     }
     if (method === "Recalculate") {
       // transactionuuid[1] = account uuid
-      URL = `${webAPIBaseURL}/Service1.svc/v1/Addon/Api/${addonUUID}/addon-cpi/recalculate/${transactionUUID[1]}/trigger`;
+      URL = `${webAPIBaseURL}/Service1.svc/v1/Addons/Api/${addonUUID}/addon-cpi/recalculate/${transactionUUID[1]}/trigger`;
       trigger = await (
         await fetch(URL, {
           method: "GET",
@@ -303,8 +303,24 @@ class MyService {
     return navigateToHomescreen;
   }
 
+  async getResource() {//evgeny
+    let apiRegion: string = await this.getAPIRegion();
+    const URL = `https://${apiRegion}.pepperi.com/V1.0/resources/resources`;
+    const resourcesReturned = await (
+      await fetch(URL, {
+        method: "GET",
+          headers: {
+            Authorization: `Bearer ${this.client.OAuthAccessToken}`,
+            "Content-Type": "application/json",
+          },
+      })
+    ).json();
+    return resourcesReturned;
+  }
+
   async initResync(accessToken: string, webAPIBaseURL: string) {
     //webapi.sandbox.pepperi.com/16.60.82/webapi/Service1.svc/v1/HomePage
+    debugger;
     const URL = `${webAPIBaseURL}/Service1.svc/v1/Resync`;
     const resync = await (
       await fetch(URL, {
@@ -327,9 +343,9 @@ class MyService {
       q: "queryParam",
     };
     const addonUUID = this.client.AddonUUID;
-    const getURL = `${webapiURL}/Service1.svc/v1/Addon/Api/${addonUUID}/addon-cpi/addon-api/get?q=${params.q}`;
-    const postURL = `${webapiURL}/Service1.svc/v1/Addon/Api/${addonUUID}/addon-cpi/addon-api/post`;
-    const useURL = `${webapiURL}/Service1.svc/v1/Addon/Api/${addonUUID}/addon-cpi/addon-api/${params.v}/use`;
+    const getURL = `${webapiURL}/Service1.svc/v1/Addons/Api/${addonUUID}/addon-cpi/addon-api/get?q=${params.q}`;
+    const postURL = `${webapiURL}/Service1.svc/v1/Addons/Api/${addonUUID}/addon-cpi/addon-api/post`;
+    const useURL = `${webapiURL}/Service1.svc/v1/Addons/Api/${addonUUID}/addon-cpi/addon-api/${params.v}/use`;
 
     const get = await (
       await fetch(getURL, {
@@ -496,10 +512,10 @@ class MyService {
   async runCPISideTest(
     accessToken: string,
     webAPIBaseURL: string,
-    testName: string
+    testName: string,
   ) {
     //make request to the CPISide tests
-    let URL = `${webAPIBaseURL}/Service1.svc/v1/Addon/Api/${this.client.AddonUUID}/addon-cpi/${testName}`;
+    let URL = `${webAPIBaseURL}/Service1.svc/v1/Addons/Api/${this.client.AddonUUID}/addon-cpi/${testName}`;
     const testResults = await (
       await fetch(URL, {
         method: "GET",
@@ -508,13 +524,13 @@ class MyService {
           "Content-Type": "application/json",
         },
       })
-    ).json();
-
-    return testResults;
+    );
+    const testResultsJson = testResults.json();
+    return testResultsJson;
   }
   
   async PerformenceTester(webAPIBaseURL, accessToken) {
-    let URL = `${webAPIBaseURL}/Service1.svc/v1/Addon/Api/${this.client.AddonUUID}/addon-cpi/PerformenceTest`;
+    let URL = `${webAPIBaseURL}/Service1.svc/v1/Addons/Api/${this.client.AddonUUID}/addon-cpi/PerformenceTest`;
     const testResults = await (
       await fetch(URL, {
         method: "GET",
@@ -527,6 +543,38 @@ class MyService {
 
     return testResults;
   }
+
+
+  async evgeny(webAPIBaseURL, accessToken) {
+    debugger;
+    let URL = `${webAPIBaseURL}/Service1.svc/v1/Addons/Api/${this.client.AddonUUID}/addon-cpi/DI-20990`;
+    const testResults = await (
+      await fetch(URL, {
+        method: "GET",
+        headers: {
+          PepperiSessionToken: accessToken,
+          "Content-Type": "application/json",
+        },
+      })
+    ).json();
+    return testResults;
+  }
+
+  async startCPIAdalTest(webAPIBaseURL, accessToken) {
+    debugger;
+    let URL = `${webAPIBaseURL}/Service1.svc/v1/Addons/Api/${this.client.AddonUUID}/addon-cpi/CPI-ADAL`;
+    const testResults = await (
+      await fetch(URL, {
+        method: "GET",
+        headers: {
+          PepperiSessionToken: accessToken,
+          "Content-Type": "application/json",
+        },
+      })
+    ).json();
+    return testResults;
+  }
+  
  //upsert to ADAL
   async upsertToADAL(tableName: string, body: AddonData) {
     const upsert = await this.papiClient.addons.data
@@ -567,7 +615,7 @@ class MyService {
   }
   //performs a get to this addon cpi-side to get JWT
   async getJWTFromCPISide(webAPIBaseURL: string, accessToken: string) {
-    let URL = `${webAPIBaseURL}/Service1.svc/v1/Addon/Api/${this.client.AddonUUID}/addon-cpi/JWT`;
+    let URL = `${webAPIBaseURL}/Service1.svc/v1/Addons/Api/${this.client.AddonUUID}/addon-cpi/JWT`;
     const JWT = await (
       await fetch(URL, {
         method: "GET",

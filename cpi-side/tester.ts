@@ -65,7 +65,7 @@ export default function Tester(testName?: string, environment?: string) {
                                     try {
                                         res = JSON.parse(data.toString());
                                     } catch (e) {
-                                        return resolve(e.toString());
+                                        return resolve((e as any).toString());
                                     }
 
                                     //Test results report might be to big for the addon, so remove some data from response
